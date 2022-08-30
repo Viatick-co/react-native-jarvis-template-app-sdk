@@ -27,12 +27,16 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['JarvisTemplateAppSdk_' + name]).toInteger()
 }
 
+def safeExtGet(prop, fallback) {
+  return rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 android {
-  compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+  compileSdkVersion safeExtGet('compileSdkVersion', 31)
 
   defaultConfig {
-    minSdkVersion getExtOrIntegerDefault('minSdkVersion')
-    targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+    minSdkVersion safeExtGet("minSdkVersion", 23)
+    targetSdkVersion safeExtGet('targetSdkVersion', 31)
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
   }
   buildTypes {
