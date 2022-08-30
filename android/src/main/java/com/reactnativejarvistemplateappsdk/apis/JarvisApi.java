@@ -21,7 +21,7 @@ import okhttp3.Response;
 
 public class JarvisApi {
 
-  private final String apiHost = "https://jarvis-dev.viatick.com/apis";
+  private final String apiHost = "https://jarvis.viatick.com/apis";
   private final OkHttpClient httpClient = new OkHttpClient();
 
   private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
