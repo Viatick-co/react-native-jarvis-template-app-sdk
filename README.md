@@ -146,6 +146,8 @@ How to run SDK service:
 import {
   startScanService,
   stopScanService,
+  BeaconInfo,
+  NotificationInfo
 } from 'react-native-jarvis-template-app-sdk';
 
 function App() {
@@ -172,6 +174,10 @@ function App() {
     const foregroundServiceNotificationTitle = 'Jarvis SDK';
     const foregroundServiceNotificationDescription = 'We are running foreground service...';
 
+    const onProximityPush = (device: BeaconInfo, notification: NotificationInfo, time: string) => {
+      console.log(device, notification, time);
+    };
+
     // startScanService to start sdk service in foreground
     const success = await startScanService(
       SDK_KEY,
@@ -179,6 +185,7 @@ function App() {
       notificationIconFileName,
       foregroundServiceNotificationTitle,
       foregroundServiceNotificationDescription,
+      onProximityPush
     );
 
     console.log('startJarvisSdk', success);
@@ -213,6 +220,7 @@ To start sdk service in foreground. It will start only one service task in foreg
 - `notificationIconResourceName` : `string` | Name of resource file for Foreground Notification Icon. The icon should be under mipmap type.
 - `notificationTitle` : `string` | Set title for Foreground Notification
 - `notificationDescription` : `string` | Set description for Foreground Notification
+- `onProximityPush` : `(device: BeaconInfo, noti: NotificationInfo, time: string) => {}` | Callback method for proximity push
 
 ### stopScanService
 

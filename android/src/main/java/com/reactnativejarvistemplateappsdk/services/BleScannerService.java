@@ -24,6 +24,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
 import com.reactnativejarvistemplateappsdk.apis.JarvisApi;
 import com.reactnativejarvistemplateappsdk.apis.response.ApplicationDetail;
 import com.reactnativejarvistemplateappsdk.apis.response.DeviceFilter;
@@ -220,10 +222,21 @@ public class BleScannerService extends Service {
       );
 
       if (notification != null) {
+        long now = new Date().getTime();
+        WritableMap eventBody = Arguments.createMap();
+
+        eventBody.putString("uuid", uuid);
+        eventBody.putInt("major", major);
+        eventBody.putInt("minor", minor);
+        eventBody.putString("title", notification.getTitle());
+        eventBody.putString("description", notification.getDescription());
+        eventBody.putDouble("time", now);
+
+        serviceDelegate.onProximityPush(eventBody);
         pushFoundNotification(minor, notification.getTitle(), notification.getDescription());
         Log.d("BleScannerService", notification.getTitle() + "-" + notification.getDescription());
       } else {
-        Log.d("BleScannerService", "onNewBeaconDetected notification notfound");
+        Log.d("BleScannerService", "onNewBeaconDetected notification not found");
       }
     });
   }

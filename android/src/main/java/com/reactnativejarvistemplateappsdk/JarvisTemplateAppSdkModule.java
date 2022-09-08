@@ -15,8 +15,11 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.reactnativejarvistemplateappsdk.services.BleScannerService;
+import com.reactnativejarvistemplateappsdk.services.BleScannerServiceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +81,17 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
       if (allPermitted) {
         Log.d("JarvisSdkModule", "BleScannerService Running " + BleScannerService.isRunning());
         if (!BleScannerService.isRunning()) {
-          BleScannerService.setDelegate(promise::resolve);
+          BleScannerService.setDelegate(new BleScannerServiceCallback() {
+            @Override
+            public void onStarted(boolean success) {
+            }
+
+            @Override
+            public void onProximityPush(WritableMap eventBody) {
+              getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("BeaconInformation", eventBody);
+            }
+          });
 
           Context reactContext = this.getReactApplicationContext();
           String iconPackage = reactContext.getPackageName();
@@ -98,7 +111,6 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
             Log.d("JarvisSdkModule", "startService");
             activity.startService(viaBeaconIntent);
           }
-
         } else {
           promise.resolve(true);
         }
@@ -116,9 +128,19 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
 
     if (activity != null) {
       Intent viaBeaconIntent = new Intent(activity, BleScannerService.class);
+      BleScannerService.setDelegate(null);
       Log.d("JarvisSdkModule", "stopService");
       activity.stopService(viaBeaconIntent);
     }
+  }
+
+  // Required for rn built in EventEmitter Calls.
+  @ReactMethod
+  public void addListener(String eventName) {
+  }
+
+  @ReactMethod
+  public void removeListeners(Integer count) {
   }
 
 }

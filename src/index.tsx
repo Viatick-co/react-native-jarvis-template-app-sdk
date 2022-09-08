@@ -1,4 +1,10 @@
-import { NativeModules, Platform } from 'react-native';
+import {
+  EmitterSubscription,
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+} from 'react-native';
+import type { BeaconInfo, NotifcationInfo } from './types';
 
 const LINKING_ERROR =
   `The package 'react-native-jarvis-template-app-sdk' doesn't seem to be linked. Make sure: \n\n` +
@@ -20,13 +26,30 @@ const JarvisTemplateAppSdk = NativeModules.JarvisTemplateAppSdk
       }
     );
 
+let eventListener: EmitterSubscription;
+
 export const startScanService = async (
   sdkKey: string,
   locatingRange: number,
   notificationIconName: string,
   notificationTitle: string,
-  notificationDescription: string
+  notificationDescription: string,
+  onProximityPush: (
+    device: BeaconInfo,
+    notification: NotifcationInfo,
+    time: string
+  ) => void
 ): Promise<boolean> => {
+  const eventEmitter = new NativeEventEmitter(
+    NativeModules.JarvisTemplateAppSdk
+  );
+  eventListener = eventEmitter.addListener('BeaconInformation', (event) => {
+    const { uuid, minor, major, time, title, description } = event;
+    const device: BeaconInfo = { uuid, minor, major };
+    const notification: NotifcationInfo = { title, description };
+    onProximityPush(device, notification, time);
+  });
+
   return JarvisTemplateAppSdk.startScanService(
     sdkKey,
     locatingRange,
@@ -37,5 +60,10 @@ export const startScanService = async (
 };
 
 export const stopScanService = async (): Promise<void> => {
+  console.log('stopScanService');
+  if (eventListener) eventListener.remove();
   return JarvisTemplateAppSdk.stopScanService();
 };
+
+
+export {BeaconInfo, NotifcationInfo}

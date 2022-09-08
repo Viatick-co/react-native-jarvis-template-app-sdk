@@ -15,6 +15,8 @@ import {
 import {
   startScanService,
   stopScanService,
+  BeaconInfo,
+  NotifcationInfo,
 } from 'react-native-jarvis-template-app-sdk';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -63,11 +65,11 @@ export default function App() {
   const requestPermission = async (): Promise<void> => {
     if (Platform.Version >= 31) {
       const bleScanGranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
       );
       if (!bleScanGranted) {
         await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!,
           {
             title: 'Bluetooth Scan Permission',
             message: 'To Scan BLE',
@@ -81,11 +83,11 @@ export default function App() {
 
     if (
       !(await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!
       ))
     ) {
       await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!,
         {
           title: 'Access Fine Location',
           message: 'To Scan BLE',
@@ -98,11 +100,11 @@ export default function App() {
 
     if (
       !(await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!
       ))
     ) {
       await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!,
         {
           title: 'Access Coarse Location',
           message: 'To Scan BLE',
@@ -115,11 +117,11 @@ export default function App() {
 
     if (
       !(await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION!
       ))
     ) {
       await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION!,
         {
           title: 'Access Background Location',
           message: 'To Scan BLE',
@@ -131,13 +133,21 @@ export default function App() {
     }
 
     const locgranted = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!
     );
     console.log('ACCESS_FINE_LOCATION', locgranted);
     const blegranted = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
     );
     console.log('BLUETOOTH_SCAN', blegranted);
+  };
+
+  const onProximityPush = (
+    device: BeaconInfo,
+    noti: NotifcationInfo,
+    time: string
+  ) => {
+    console.log(device, noti, time);
   };
 
   const startJarvisSdk = async (): Promise<void> => {
@@ -146,7 +156,8 @@ export default function App() {
       3,
       'ic_launcher_round',
       'Jarvis Example',
-      'We are running foreground service...'
+      'We are running foreground service...',
+      onProximityPush
     );
     console.log('startJarvisSdk', success);
   };
