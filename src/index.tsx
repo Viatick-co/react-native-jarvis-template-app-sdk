@@ -7,7 +7,7 @@ import {
 import type { BeaconInfo, NotifcationInfo } from './types';
 
 const LINKING_ERROR =
-  `The package 'react-native-jarvis-template-app-sdk' doesn't seem to be linked. Make sure: \n\n` +
+  "The package 'react-native-jarvis-template-app-sdk' doesn't seem to be linked. Make sure: \n\n" +
   Platform.select({
     ios: "- You have run 'pod install'\n",
     default: '',
@@ -28,7 +28,7 @@ const JarvisTemplateAppSdk = NativeModules.JarvisTemplateAppSdk
 
 let eventListener: EmitterSubscription;
 
-export const startScanService = async (
+const startScanService = async (
   sdkKey: string,
   locatingRange: number,
   notificationIconName: string,
@@ -59,11 +59,11 @@ export const startScanService = async (
   );
 };
 
-export const stopScanService = async (): Promise<void> => {
-  console.log('stopScanService');
-  if (eventListener) eventListener.remove();
+const stopScanService = async (): Promise<void> => {
+  if (eventListener) {
+    eventListener.remove();
+  }
   return JarvisTemplateAppSdk.stopScanService();
 };
 
-
-export {BeaconInfo, NotifcationInfo}
+export { startScanService, stopScanService, BeaconInfo, NotifcationInfo };
