@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E555C0D2413F4C50049A1A2 /* JarvisTemplateAppSdk.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* JarvisTemplateAppSdk.m */; };
-		F4FF95D7245B92E800C19C63 /*  JarvisTemplateAppSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /*  JarvisTemplateAppSdk.swift */; };
+		A684218C28E36E5100C645FC /* JarvisApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = A684218B28E36E5100C645FC /* JarvisApi.swift */; };
+		A684218F28E3708E00C645FC /* ApplicationDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = A684218E28E3708E00C645FC /* ApplicationDetail.swift */; };
+		A684219128E371B000C645FC /* DeviceFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A684219028E371B000C645FC /* DeviceFilter.swift */; };
+		F4FF95D7245B92E800C19C63 /* JarvisTemplateAppSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,10 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libJarvisTemplateAppSdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJarvisTemplateAppSdk.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A64F8CCE28E342850070B69A /* BleScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleScanService.swift; sourceTree = "<group>"; };
+		A684218B28E36E5100C645FC /* JarvisApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisApi.swift; sourceTree = "<group>"; };
+		A684218E28E3708E00C645FC /* ApplicationDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationDetail.swift; sourceTree = "<group>"; };
+		A684219028E371B000C645FC /* DeviceFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceFilter.swift; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* JarvisTemplateAppSdk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JarvisTemplateAppSdk.m; sourceTree = "<group>"; };
 		F4FF95D5245B92E700C19C63 /* JarvisTemplateAppSdk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JarvisTemplateAppSdk-Bridging-Header.h"; sourceTree = "<group>"; };
 		F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisTemplateAppSdk.swift; sourceTree = "<group>"; };
@@ -52,11 +58,31 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				A684218A28E36E3100C645FC /* apis */,
+				A64F8CCE28E342850070B69A /* BleScanService.swift */,
 				F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */,
 				B3E7B5891CC2AC0600A0062D /* JarvisTemplateAppSdk.m */,
 				F4FF95D5245B92E700C19C63 /* JarvisTemplateAppSdk-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		A684218A28E36E3100C645FC /* apis */ = {
+			isa = PBXGroup;
+			children = (
+				A684218D28E3707E00C645FC /* response */,
+				A684218B28E36E5100C645FC /* JarvisApi.swift */,
+			);
+			path = apis;
+			sourceTree = "<group>";
+		};
+		A684218D28E3707E00C645FC /* response */ = {
+			isa = PBXGroup;
+			children = (
+				A684218E28E3708E00C645FC /* ApplicationDetail.swift */,
+				A684219028E371B000C645FC /* DeviceFilter.swift */,
+			);
+			path = response;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -117,7 +143,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4FF95D7245B92E800C19C63 /* JarvisTemplateAppSdk.swift in Sources */,
-				B3E7B58A1CC2AC0600A0062D /* JarvisTemplateAppSdk.m in Sources */,
+				A684218C28E36E5100C645FC /* JarvisApi.swift in Sources */,
+				A684218F28E3708E00C645FC /* ApplicationDetail.swift in Sources */,
+				A684219128E371B000C645FC /* DeviceFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,7 +196,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -212,7 +240,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
