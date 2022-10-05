@@ -26,6 +26,8 @@ const JarvisTemplateAppSdk = NativeModules.JarvisTemplateAppSdk
       }
     );
 
+const eventEmitter = new NativeEventEmitter(NativeModules.JarvisTemplateAppSdk);
+
 let eventListener: EmitterSubscription;
 
 const startScanService = async (
@@ -40,14 +42,15 @@ const startScanService = async (
     time: string
   ) => void
 ): Promise<boolean> => {
-  const eventEmitter = new NativeEventEmitter(
-    NativeModules.JarvisTemplateAppSdk
-  );
   eventListener = eventEmitter.addListener('BeaconInformation', (event) => {
     const { uuid, minor, major, time, title, description } = event;
     const device: BeaconInfo = { uuid, minor, major };
     const notification: NotifcationInfo = { title, description };
-    onProximityPush(device, notification, time);
+
+    if (!!onProximityPush) {
+      console.log('yes');
+      onProximityPush(device, notification, time);
+    }
   });
 
   return JarvisTemplateAppSdk.startScanService(

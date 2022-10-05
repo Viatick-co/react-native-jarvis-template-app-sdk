@@ -25,6 +25,7 @@
 		5709B34CF0A7D63546082F79 /* Pods-JarvisTemplateAppSdkExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JarvisTemplateAppSdkExample.release.xcconfig"; path = "Target Support Files/Pods-JarvisTemplateAppSdkExample/Pods-JarvisTemplateAppSdkExample.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-JarvisTemplateAppSdkExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-JarvisTemplateAppSdkExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = JarvisTemplateAppSdkExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B85A0CA428ED76A50071FA64 /* JarvisTemplateAppSdkExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = JarvisTemplateAppSdkExample.entitlements; path = JarvisTemplateAppSdkExample/JarvisTemplateAppSdkExample.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -43,6 +44,7 @@
 		13B07FAE1A68108700A75B9A /* JarvisTemplateAppSdkExample */ = {
 			isa = PBXGroup;
 			children = (
+				B85A0CA428ED76A50071FA64 /* JarvisTemplateAppSdkExample.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -133,10 +135,6 @@
 			attributes = {
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
-					00E356ED1AD99517003FC87E = {
-						CreatedOnToolsVersion = 6.2;
-						TestTargetID = 13B07F861A680F5B00A75B9A;
-					};
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
 					};
@@ -185,7 +183,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh index.tsx\n";
 		};
 		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -283,7 +281,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = JarvisTemplateAppSdkExample/JarvisTemplateAppSdkExample.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 65BFNMKECG;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = JarvisTemplateAppSdkExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -309,7 +309,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = JarvisTemplateAppSdkExample/JarvisTemplateAppSdkExample.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 65BFNMKECG;
 				INFOPLIST_FILE = JarvisTemplateAppSdkExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

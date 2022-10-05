@@ -54,7 +54,6 @@ public class JarvisApi {
         deviceFilterMap.put("attendance_beacon", new DeviceFilter(uuid, major));
 
         return new ApplicationDetail(id, name, email, deviceFilterMap);
-
       } else {
         Log.d("getApplicationDetail", "code" + rp.code());
       }

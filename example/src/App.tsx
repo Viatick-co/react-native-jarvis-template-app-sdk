@@ -63,15 +63,34 @@ export default function App() {
   };
 
   const requestPermission = async (): Promise<void> => {
-    if (Platform.Version >= 31) {
-      const bleScanGranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
-      );
-      if (!bleScanGranted) {
+    if (Platform.OS === 'android') {
+      if (Platform.Version >= 31) {
+        const bleScanGranted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
+        );
+        if (!bleScanGranted) {
+          await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!,
+            {
+              title: 'Bluetooth Scan Permission',
+              message: 'To Scan BLE',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            }
+          );
+        }
+      }
+
+      if (
+        !(await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!
+        ))
+      ) {
         await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!,
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!,
           {
-            title: 'Bluetooth Scan Permission',
+            title: 'Access Fine Location',
             message: 'To Scan BLE',
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
@@ -79,67 +98,53 @@ export default function App() {
           }
         );
       }
-    }
 
-    if (
-      !(await PermissionsAndroid.check(
+      if (
+        !(await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!
+        ))
+      ) {
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!,
+          {
+            title: 'Access Coarse Location',
+            message: 'To Scan BLE',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+      }
+
+      if (
+        !(await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION!
+        ))
+      ) {
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION!,
+          {
+            title: 'Access Background Location',
+            message: 'To Scan BLE',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+      }
+
+      const locgranted = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!
-      ))
-    ) {
-      await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!,
-        {
-          title: 'Access Fine Location',
-          message: 'To Scan BLE',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        }
       );
-    }
-
-    if (
-      !(await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!
-      ))
-    ) {
-      await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!,
-        {
-          title: 'Access Coarse Location',
-          message: 'To Scan BLE',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        }
+      console.log('ACCESS_FINE_LOCATION', locgranted);
+      const blegranted = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
       );
+      console.log('BLUETOOTH_SCAN', blegranted);
+    } else {
+      // if running ios
+      // make sure your user set always allow location to allow app can run in background
     }
-
-    if (
-      !(await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION!
-      ))
-    ) {
-      await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION!,
-        {
-          title: 'Access Background Location',
-          message: 'To Scan BLE',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        }
-      );
-    }
-
-    const locgranted = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!
-    );
-    console.log('ACCESS_FINE_LOCATION', locgranted);
-    const blegranted = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
-    );
-    console.log('BLUETOOTH_SCAN', blegranted);
   };
 
   const onProximityPush = (

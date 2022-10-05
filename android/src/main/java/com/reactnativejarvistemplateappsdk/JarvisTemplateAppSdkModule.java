@@ -84,6 +84,7 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
           BleScannerService.setDelegate(new BleScannerServiceCallback() {
             @Override
             public void onStarted(boolean success) {
+              promise.resolve(success);
             }
 
             @Override
