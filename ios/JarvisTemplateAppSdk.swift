@@ -160,9 +160,9 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     OperationQueue.main.addOperation {
       let identifer = "com.viatick.jarvissdk.beaconscan";
 //      let uuid = "F7826DA6-4FA2-4E98-8024-BC5B71E0893F";
-      let major:NSNumber = 5670;
+//      let major:NSNumber = 5670;
 //      self.filterUuid = uuid;
-      self.filterMajor = major;
+//      self.filterMajor = major;
       
       if #available(iOS 13.0, *) {
         self.filterRegion = CLBeaconRegion(uuid: UUID(uuidString: self.filterUuid)!, major: CLBeaconMajorValue(truncating: self.filterMajor), identifier: identifer);
