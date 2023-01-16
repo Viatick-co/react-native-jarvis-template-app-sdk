@@ -4,7 +4,7 @@ import {
   NativeModules,
   Platform,
 } from 'react-native';
-import type { BeaconInfo, NotifcationInfo } from './types';
+import type { BeaconInfo, NotifcationInfo, JarvisServiceStatus } from './types';
 
 const LINKING_ERROR =
   "The package 'react-native-jarvis-template-app-sdk' doesn't seem to be linked. Make sure: \n\n" +
@@ -53,7 +53,7 @@ const startScanService = async (
     }
   });
 
-  return JarvisTemplateAppSdk.startScanService(
+  return await JarvisTemplateAppSdk.startScanService(
     sdkKey,
     locatingRange,
     notificationIconName,
@@ -62,11 +62,21 @@ const startScanService = async (
   );
 };
 
-const stopScanService = async (): Promise<void> => {
+const stopScanService = (): void => {
   if (eventListener) {
     eventListener.remove();
   }
   return JarvisTemplateAppSdk.stopScanService();
 };
 
-export { startScanService, stopScanService, BeaconInfo, NotifcationInfo };
+const getServiceStatus = async (): Promise<JarvisServiceStatus> => {
+  return await JarvisTemplateAppSdk.getScanServiceStatus();
+};
+
+export {
+  startScanService,
+  stopScanService,
+  getServiceStatus,
+  BeaconInfo,
+  NotifcationInfo,
+};

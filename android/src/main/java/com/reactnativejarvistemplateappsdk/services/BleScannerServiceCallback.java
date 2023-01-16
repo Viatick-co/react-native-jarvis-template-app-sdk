@@ -8,4 +8,7 @@ public interface BleScannerServiceCallback {
   void onStarted(boolean success);
 
   void onProximityPush(@Nullable WritableMap eventBody);
+
+  void onDestroyed();
+
 }

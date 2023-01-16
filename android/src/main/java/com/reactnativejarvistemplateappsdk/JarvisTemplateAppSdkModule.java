@@ -11,17 +11,23 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.common.ArrayUtils;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.reactnativejarvistemplateappsdk.model.PeripheralDetail;
 import com.reactnativejarvistemplateappsdk.services.BleScannerService;
 import com.reactnativejarvistemplateappsdk.services.BleScannerServiceCallback;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @ReactModule(name = JarvisTemplateAppSdkModule.NAME)
@@ -92,6 +98,10 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
               getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit("BeaconInformation", eventBody);
             }
+
+            @Override
+            public void onDestroyed() {
+            }
           });
 
           Context reactContext = this.getReactApplicationContext();
@@ -129,10 +139,29 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
 
     if (activity != null) {
       Intent viaBeaconIntent = new Intent(activity, BleScannerService.class);
-      BleScannerService.setDelegate(null);
       Log.d("JarvisSdkModule", "stopService");
       activity.stopService(viaBeaconIntent);
     }
+  }
+
+  @ReactMethod
+  public void getScanServiceStatus(final Promise promise) {
+    Log.d("SdkModule", "getScanServiceStatus called");
+    long lastSignalDateTime = BleScannerService.getLastBleFoundDateTime();
+    boolean running = BleScannerService.isRunning();
+    Collection<PeripheralDetail> beacons = BleScannerService.getListBeacons();
+
+    WritableMap eventBody = Arguments.createMap();
+    eventBody.putDouble("lastDetectedSignalDateTime", lastSignalDateTime);
+    eventBody.putBoolean("serviceRunning", running);
+
+    WritableArray beaconArray = new WritableNativeArray();
+    for (PeripheralDetail beacon : beacons) {
+      beaconArray.pushMap(beacon.toWritableMap());
+    }
+    eventBody.putArray("beacons", beaconArray);
+
+    promise.resolve(eventBody);
   }
 
   // Required for rn built in EventEmitter Calls.

@@ -15,6 +15,7 @@ import {
 import {
   startScanService,
   stopScanService,
+  getServiceStatus,
   BeaconInfo,
   NotifcationInfo,
 } from 'react-native-jarvis-template-app-sdk';
@@ -167,6 +168,11 @@ export default function App() {
     console.log('startJarvisSdk', success);
   };
 
+  const getJarvisServiceStatus = async (): Promise<void> => {
+    const status = await getServiceStatus();
+    console.log('status', status);
+  };
+
   React.useEffect(() => {
     requestPermission();
   }, []);
@@ -197,11 +203,14 @@ export default function App() {
           </Section>
 
           <View style={{ flexDirection: 'row', padding: 10 }}>
-            <View style={{ flex: 0.5, padding: 10 }}>
+            <View style={{ flex: 0.33, padding: 10 }}>
               <Button title="START" onPress={startJarvisSdk} />
             </View>
-            <View style={{ flex: 0.5, padding: 10 }}>
+            <View style={{ flex: 0.33, padding: 10 }}>
               <Button title="STOP" onPress={stopScanService} />
+            </View>
+            <View style={{ flex: 0.33, padding: 10 }}>
+              <Button title="STATUS" onPress={getJarvisServiceStatus} />
             </View>
           </View>
         </View>

@@ -60,7 +60,9 @@ public class BleScannerService extends Service {
   private String serviceNotificationTitle = "Jarvis";
   private String serviceNotificationDescription = "SDK Running...";
 
-  private final ConcurrentHashMap<String, PeripheralDetail> scannedBleMap = new ConcurrentHashMap<>();
+  private static long lastBleFoundDateTime = 0;
+
+  private static final ConcurrentHashMap<String, PeripheralDetail> scannedBleMap = new ConcurrentHashMap<>();
   private final ScheduledThreadPoolExecutor poolExecutor = new ScheduledThreadPoolExecutor(2);
 
   public BleScannerService() {
@@ -182,6 +184,7 @@ public class BleScannerService extends Service {
         BluetoothLeScanner bluetoothLeScanner = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter().getBluetoothLeScanner();
         bluetoothLeScanner.stopScan(this.scanCallback);
       }
+
     }
 
     this.poolExecutor.shutdownNow();
@@ -189,18 +192,24 @@ public class BleScannerService extends Service {
 
   private void onBleDiscovered(ScanResult scanResult) {
     long now = new Date().getTime();
-    PeripheralDetail ble = BleUtils.getBeaconFromScanResult(scanResult);
-    if (ble != null && ble.getDistance() <= (double) this.locatingRange) {
+    lastBleFoundDateTime = now;
 
+    PeripheralDetail ble = BleUtils.getBeaconFromScanResult(scanResult);
+    if (ble == null) {
+      return;
+    }
+
+    double distance = ble.getDistance();
+    if (distance > 0 && distance <= (double) this.locatingRange) {
       String key = ble.getKey();
 
-      if (!this.scannedBleMap.containsKey(key)) {
-        this.scannedBleMap.put(key, ble);
+      if (!scannedBleMap.containsKey(key)) {
+        scannedBleMap.put(key, ble);
         ble.setLastSignalTime(now);
 
         this.onNewBeaconDetected(ble);
       } else {
-        PeripheralDetail existBle = this.scannedBleMap.get(key);
+        PeripheralDetail existBle = scannedBleMap.get(key);
         existBle.setLastSignalTime(now);
       }
     }
@@ -232,9 +241,14 @@ public class BleScannerService extends Service {
         eventBody.putString("description", notification.getDescription());
         eventBody.putDouble("time", now);
 
-        serviceDelegate.onProximityPush(eventBody);
         pushFoundNotification(minor, notification.getTitle(), notification.getDescription());
         Log.d("BleScannerService", notification.getTitle() + "-" + notification.getDescription());
+
+        try {
+          serviceDelegate.onProximityPush(eventBody);
+        } catch (Exception e) {
+          Log.e("BleScannerService", "Callback onProximityPush failed", e);
+        }
       } else {
         Log.d("BleScannerService", "onNewBeaconDetected notification not found");
       }
@@ -267,14 +281,14 @@ public class BleScannerService extends Service {
     long now = nowCalendar.getTimeInMillis();
     Log.d("BleScannerService", "checkScannedMap " + now);
 
-    Collection<PeripheralDetail> bleList = this.scannedBleMap.values();
+    Collection<PeripheralDetail> bleList = scannedBleMap.values();
     for (PeripheralDetail ble : bleList) {
       String key = ble.getKey();
       long lastSignalTime = ble.getLastSignalTime();
 
       // offsite
       if (now - lastSignalTime >= 60 * 1000) {
-        this.scannedBleMap.remove(key);
+        scannedBleMap.remove(key);
       }
     }
   }
@@ -284,9 +298,11 @@ public class BleScannerService extends Service {
     Log.d("BleScannerService", "onDestroy");
     this.stopScan();
     this.stopForeground(true);
-    this.scannedBleMap.clear();
+    scannedBleMap.clear();
     running = false;
     super.onDestroy();
+    serviceDelegate.onDestroyed();
+    serviceDelegate = null;
   }
 
   private void createNotificationChannel() {
@@ -314,4 +330,13 @@ public class BleScannerService extends Service {
   public static void setDelegate(BleScannerServiceCallback callback) {
     serviceDelegate = callback;
   }
+
+  public static Collection<PeripheralDetail> getListBeacons() {
+    return scannedBleMap.values();
+  }
+
+  public static long getLastBleFoundDateTime() {
+    return lastBleFoundDateTime;
+  }
+
 }
