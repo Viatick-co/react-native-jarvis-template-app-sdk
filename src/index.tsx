@@ -62,11 +62,11 @@ const startScanService = async (
   );
 };
 
-const stopScanService = (): void => {
+const stopScanService = async (): Promise<void> => {
   if (eventListener) {
     eventListener.remove();
   }
-  return JarvisTemplateAppSdk.stopScanService();
+  return await JarvisTemplateAppSdk.stopScanService();
 };
 
 const getServiceStatus = async (): Promise<JarvisServiceStatus> => {

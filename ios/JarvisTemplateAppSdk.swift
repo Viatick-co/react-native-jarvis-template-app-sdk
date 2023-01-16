@@ -67,7 +67,7 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
   
   private var scanning = false;
   private var starting = false;
-
+  private var lastFoundSignalTime : Int64 = 0;
     
   func registerBackgroundTask() {
     self.backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "ble-background-task", expirationHandler: {
@@ -253,9 +253,10 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
           "description" : notificationDetail.description,
           "time" : now
         ];
-        self.sendEvent(withName: "BeaconInformation", body: eventBody)
         
         self.pushFoundNotifcation(minor: ble.minor, title: notificationDetail.title, description: notificationDetail.description)
+        
+        self.sendEvent(withName: "BeaconInformation", body: eventBody)
         return;
       }
     })
@@ -265,6 +266,7 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     
   func processBeacons(_ beacons: [CLBeacon]) {
     let timestamp = Int64((Date().timeIntervalSince1970 * 1000).rounded());
+    self.lastFoundSignalTime = timestamp;
     
     var maxDistance: Double = 15;
 
@@ -371,8 +373,34 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     self.destroyBluetooth();
     
     self.scanning = false;
+    self.scannedBleMap.removeAll();
     
     resolve(true)
+  }
+  
+  @objc(getScanServiceStatus:withRejecter:)
+  func getScanServiceStatus(resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    print("getScanServiceStatus called", self.scannedBleMap.values);
+    
+    let beacons: NSMutableArray = []
+    for (uuid, beacon) in self.scannedBleMap {
+      let beaconDic: NSMutableDictionary = [:]
+      beaconDic["uuid"] = beacon.uuid
+      beaconDic["major"] = beacon.major
+      beaconDic["minor"] = beacon.minor
+      beaconDic["lastSignalTime"] = beacon.lastSignalTime
+      beaconDic["distance"] = beacon.distance
+      beacons.add(beaconDic)
+    }
+    
+    
+    let eventBody:[String: Any] = [
+      "lastDetectedSignalDateTime" : self.lastFoundSignalTime,
+      "serviceRunning" : self.scanning,
+      "beacons" : beacons
+    ];
+  
+    resolve(eventBody);
   }
   
   public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {

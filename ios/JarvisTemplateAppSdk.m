@@ -18,6 +18,9 @@ RCT_EXTERN_METHOD(startScanService:(NSString*)sdkKey
 RCT_EXTERN_METHOD(stopScanService:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getScanServiceStatus:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+
 + (BOOL)requiresMainQueueSetup
 {
   return NO;

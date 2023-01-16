@@ -20,5 +20,5 @@ export type ServiceBeaconInfo = {
 export type JarvisServiceStatus = {
   lastDetectedSignalDateTime: number;
   serviceRunning: boolean;
-  beacons: ServiceBeaconInfo;
+  beacons: ServiceBeaconInfo[];
 };
