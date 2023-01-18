@@ -137,6 +137,10 @@ function App() {
 }
 ```
 
+Second, it requires internet connected, please handle it at your side before call `startScanService`
+
+Finally, make sure bluetooth service is enabled, please handle it at your side before call `startScanService`
+
 #### 3. Start and Stop SDK
 
 How to run SDK service:
@@ -228,6 +232,22 @@ To stop the running sdk service when no use.
 
 Please remember to stop it when no longer use otherwise it causes your battery drain.
 
+### getServiceStatus()
+
+To retrieve all current information from running service
+
+#### Response
+```tsx
+type JarvisServiceStatus = {
+  lastDetectedSignalDateTime: number;
+  serviceRunning: boolean;
+  beacons: ServiceBeaconInfo[];
+};
+```
+
+- `lastDetectedSignalDateTime`: timestamp when running service get last signal from any devices found nearby inside locating range
+- `serviceRunning`: flag to know whether service is still running in background
+- `beacons`: list of devices found and notified and still received readings, when you are out of locating range for 1 minute, the device will be removed from the list
 
 ## License
 
