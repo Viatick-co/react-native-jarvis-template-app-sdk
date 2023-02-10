@@ -13,14 +13,10 @@ import {
   SipCallState,
   SipRegistrationState,
   SipVideoCallPreview,
-  stopSipApplication,
 } from 'react-native-jarvis-template-app-sdk';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useState } from 'react';
 
 export default function App() {
-  const [newCall, setNewcall] = useState(false);
-
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -77,20 +73,17 @@ export default function App() {
     console.log('onSipCallStateChange', state);
     if (state === SipCallState.IncomingReceived) {
       console.log('Incoming Received');
-      setNewcall(true);
 
       setTimeout(() => {
         console.log('Incoming Received Asnwering');
         answerIncomingCall();
       }, 3000);
-    } else {
-      setNewcall(false);
     }
   };
 
-  const stopJarvisSdk = async (): Promise<void> => {
-    stopSipApplication();
-  };
+  // const stopJarvisSdk = async (): Promise<void> => {
+  //   stopSipApplication();
+  // };
 
   React.useEffect(() => {
     requestPermission().then(async () => {
@@ -113,7 +106,6 @@ export default function App() {
     });
   }, []);
 
-  // @ts-ignore
   return (
     <SafeAreaView style={backgroundStyle}>
       <View style={{ flex: 1, backgroundColor: 'green' }}>

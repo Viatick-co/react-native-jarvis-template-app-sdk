@@ -4,6 +4,7 @@ import {
   NativeModules,
   Platform,
   requireNativeComponent,
+  ViewStyle,
 } from 'react-native';
 import {
   BeaconInfo,
@@ -13,6 +14,7 @@ import {
   SipCallState,
   SipRegistrationState,
 } from './types';
+import React from 'react';
 
 const LINKING_ERROR =
   "The package 'react-native-jarvis-template-app-sdk' doesn't seem to be linked. Make sure: \n\n" +
@@ -70,7 +72,7 @@ const startScanService = async (
     const device: BeaconInfo = { uuid, minor, major };
     const notification: NotifcationInfo = { title, description };
 
-    if (!!onProximityPush) {
+    if (onProximityPush) {
       onProximityPush(device, notification, time);
     }
   });
@@ -123,7 +125,13 @@ const rejectIncomingCall = (): void => {
   JarvisTemplateAppSdk.rejectIncomingCall();
 };
 
-const SipVideoCallPreview = requireNativeComponent('SipVideoCallPreview');
+const SipVideoCallPreviewRaw = requireNativeComponent('SipVideoCallPreview');
+
+const SipVideoCallPreview: React.FC<{
+  style?: ViewStyle;
+}> = (props) => {
+  return <SipVideoCallPreviewRaw {...props} />;
+};
 
 export {
   startScanService,
