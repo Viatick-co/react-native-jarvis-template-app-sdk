@@ -1,4 +1,4 @@
-package com.reactnativejarvistemplateappsdk;
+package com.viatick;
 
 import androidx.annotation.NonNull;
 
@@ -6,6 +6,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
+import com.viatick.jarvissdk.views.SipVideoCallViewManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,8 @@ public class JarvisTemplateAppSdkPackage implements ReactPackage {
   @NonNull
   @Override
   public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
-    return Collections.emptyList();
+    List<ViewManager> managers = new ArrayList<>();
+    managers.add(new SipVideoCallViewManager(reactContext));
+    return managers;
   }
 }

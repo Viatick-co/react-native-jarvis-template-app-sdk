@@ -1,10 +1,10 @@
-package com.reactnativejarvistemplateappsdk.apis;
+package com.viatick.jarvissdk.apis;
 
 import android.util.Log;
 
-import com.reactnativejarvistemplateappsdk.apis.response.ApplicationDetail;
-import com.reactnativejarvistemplateappsdk.apis.response.DeviceFilter;
-import com.reactnativejarvistemplateappsdk.apis.response.LocatingNotification;
+import com.viatick.jarvissdk.apis.response.ApplicationDetail;
+import com.viatick.jarvissdk.apis.response.DeviceFilter;
+import com.viatick.jarvissdk.apis.response.LocatingNotification;
 
 import org.json.JSONException;
 import org.json.JSONObject;

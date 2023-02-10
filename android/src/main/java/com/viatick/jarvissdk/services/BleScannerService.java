@@ -1,4 +1,4 @@
-package com.reactnativejarvistemplateappsdk.services;
+package com.viatick.jarvissdk.services;
 
 import android.Manifest;
 import android.app.Notification;
@@ -26,12 +26,12 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
-import com.reactnativejarvistemplateappsdk.apis.JarvisApi;
-import com.reactnativejarvistemplateappsdk.apis.response.ApplicationDetail;
-import com.reactnativejarvistemplateappsdk.apis.response.DeviceFilter;
-import com.reactnativejarvistemplateappsdk.apis.response.LocatingNotification;
-import com.reactnativejarvistemplateappsdk.model.PeripheralDetail;
-import com.reactnativejarvistemplateappsdk.utils.BleUtils;
+import com.viatick.jarvissdk.apis.JarvisApi;
+import com.viatick.jarvissdk.apis.response.ApplicationDetail;
+import com.viatick.jarvissdk.apis.response.DeviceFilter;
+import com.viatick.jarvissdk.apis.response.LocatingNotification;
+import com.viatick.jarvissdk.model.PeripheralDetail;
+import com.viatick.jarvissdk.utils.BleUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;

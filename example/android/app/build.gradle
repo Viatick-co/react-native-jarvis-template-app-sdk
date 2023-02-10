@@ -257,6 +257,11 @@ android {
 
         }
     }
+
+  packagingOptions {
+    pickFirst '**/*.so'
+  }
+
 }
 
 dependencies {
@@ -264,6 +269,11 @@ dependencies {
 
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    // Latest version is 5.0.x, using + to get the latest available
+    implementation 'org.linphone:linphone-sdk-android:5.0.71@aar'
+    // Adding this dependency allows the linphone-sdk to automatically handle audio focus
+    implementation 'androidx.media:media:1.6.0'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 

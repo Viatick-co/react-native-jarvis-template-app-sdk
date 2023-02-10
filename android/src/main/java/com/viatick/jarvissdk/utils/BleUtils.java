@@ -1,9 +1,9 @@
-package com.reactnativejarvistemplateappsdk.utils;
+package com.viatick.jarvissdk.utils;
 
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 
-import com.reactnativejarvistemplateappsdk.model.PeripheralDetail;
+import com.viatick.jarvissdk.model.PeripheralDetail;
 
 public class BleUtils {
   private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();

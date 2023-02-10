@@ -1,4 +1,4 @@
-package com.reactnativejarvistemplateappsdk.model;
+package com.viatick.jarvissdk.model;
 
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;

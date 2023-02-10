@@ -1,4 +1,4 @@
-package com.reactnativejarvistemplateappsdk.apis.response;
+package com.viatick.jarvissdk.apis.response;
 
 import java.io.Serializable;
 

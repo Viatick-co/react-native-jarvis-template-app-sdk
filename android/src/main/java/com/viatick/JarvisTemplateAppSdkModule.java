@@ -1,4 +1,4 @@
-package com.reactnativejarvistemplateappsdk;
+package com.viatick;
 
 import android.Manifest;
 import android.app.Activity;
@@ -19,12 +19,18 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
-import com.facebook.react.common.ArrayUtils;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.reactnativejarvistemplateappsdk.model.PeripheralDetail;
-import com.reactnativejarvistemplateappsdk.services.BleScannerService;
-import com.reactnativejarvistemplateappsdk.services.BleScannerServiceCallback;
+import com.viatick.jarvissdk.model.PeripheralDetail;
+import com.viatick.jarvissdk.services.BleScannerService;
+import com.viatick.jarvissdk.services.BleScannerServiceCallback;
+import com.viatick.jarvissdk.sip.SipAppInitCallback;
+import com.viatick.jarvissdk.sip.SipAppStateListener;
+import com.viatick.jarvissdk.sip.SipApplication;
+import com.viatick.jarvissdk.sip.data.SipAppInitError;
+
+import org.linphone.core.Call;
+import org.linphone.core.RegistrationState;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +39,26 @@ import java.util.List;
 @ReactModule(name = JarvisTemplateAppSdkModule.NAME)
 public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
   public static final String NAME = "JarvisTemplateAppSdk";
+
+  private final SipAppStateListener sipAppStateListener = new SipAppStateListener() {
+    @Override
+    public void onAccountRegistrationStateChanged(RegistrationState state) {
+      WritableMap eventBody = Arguments.createMap();
+      eventBody.putInt("state", state.toInt());
+
+      getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit("SipAppAccountState", eventBody);
+    }
+
+    @Override
+    public void onCallStateChanged(Call.State callState) {
+      WritableMap eventBody = Arguments.createMap();
+      eventBody.putInt("state", callState.toInt());
+
+      getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit("SipCallState", eventBody);
+    }
+  };
 
   public JarvisTemplateAppSdkModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -162,6 +188,43 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
     eventBody.putArray("beacons", beaconArray);
 
     promise.resolve(eventBody);
+  }
+
+  @ReactMethod
+  public void initSipApplication(
+    String username,
+    String password,
+    final Promise promise
+  ) {
+    SipApplication.initApp(
+      this.getCurrentActivity(),
+      username,
+      password,
+      this.sipAppStateListener,
+      (success, errorCode) -> {
+        Log.d("IntercomSDK", "initSipApplication response");
+
+        WritableMap resultBody = Arguments.createMap();
+        resultBody.putBoolean("success", success);
+        resultBody.putInt("errorCode", errorCode.ordinal());
+        promise.resolve(resultBody);
+      }
+    );
+  }
+
+  @ReactMethod
+  public void stopSipApplication() {
+    SipApplication.destroySdk();
+  }
+
+  @ReactMethod
+  public void answerIncomingCall() {
+    SipApplication.answerIncomingCall();
+  }
+
+  @ReactMethod
+  public void rejectIncomingCall() {
+    SipApplication.rejectIncomingCall();
   }
 
   // Required for rn built in EventEmitter Calls.

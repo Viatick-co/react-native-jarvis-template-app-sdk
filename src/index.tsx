@@ -3,8 +3,16 @@ import {
   NativeEventEmitter,
   NativeModules,
   Platform,
+  requireNativeComponent,
 } from 'react-native';
-import type { BeaconInfo, NotifcationInfo, JarvisServiceStatus } from './types';
+import {
+  BeaconInfo,
+  NotifcationInfo,
+  JarvisServiceStatus,
+  InitSipAppResult,
+  SipCallState,
+  SipRegistrationState,
+} from './types';
 
 const LINKING_ERROR =
   "The package 'react-native-jarvis-template-app-sdk' doesn't seem to be linked. Make sure: \n\n" +
@@ -26,9 +34,24 @@ const JarvisTemplateAppSdk = NativeModules.JarvisTemplateAppSdk
       }
     );
 
+let onAccountRegistrationStateListener: (state: number) => void;
+let onCallStateListener: (state: number) => void;
+
 const eventEmitter = new NativeEventEmitter(NativeModules.JarvisTemplateAppSdk);
 
 let eventListener: EmitterSubscription;
+eventEmitter.addListener('SipAppAccountState', (event) => {
+  const { state } = event;
+
+  !!onAccountRegistrationStateListener &&
+    onAccountRegistrationStateListener(state);
+});
+
+eventEmitter.addListener('SipCallState', (event) => {
+  const { state } = event;
+
+  !!onCallStateListener && onCallStateListener(state);
+});
 
 const startScanService = async (
   sdkKey: string,
@@ -48,7 +71,6 @@ const startScanService = async (
     const notification: NotifcationInfo = { title, description };
 
     if (!!onProximityPush) {
-      console.log('yes');
       onProximityPush(device, notification, time);
     }
   });
@@ -73,10 +95,47 @@ const getServiceStatus = async (): Promise<JarvisServiceStatus> => {
   return await JarvisTemplateAppSdk.getScanServiceStatus();
 };
 
+const initSipApplication = async (
+  username: string,
+  password: string,
+  onAccountRegistrationStateChange: (state: SipRegistrationState) => void,
+  onCallStateChange: (state: SipCallState) => void
+): Promise<InitSipAppResult> => {
+  onAccountRegistrationStateListener = onAccountRegistrationStateChange;
+  onCallStateListener = onCallStateChange;
+  return await JarvisTemplateAppSdk.initSipApplication(username, password);
+};
+
+const stopSipApplication = (): void => {
+  // @ts-ignore
+  onAccountRegistrationStateListener = null;
+  // @ts-ignore
+  onCallStateListener = null;
+
+  JarvisTemplateAppSdk.stopSipApplication();
+};
+
+const answerIncomingCall = (): void => {
+  JarvisTemplateAppSdk.answerIncomingCall();
+};
+
+const rejectIncomingCall = (): void => {
+  JarvisTemplateAppSdk.rejectIncomingCall();
+};
+
+const SipVideoCallPreview = requireNativeComponent('SipVideoCallPreview');
+
 export {
   startScanService,
   stopScanService,
   getServiceStatus,
+  initSipApplication,
+  stopSipApplication,
+  answerIncomingCall,
+  rejectIncomingCall,
   BeaconInfo,
   NotifcationInfo,
+  SipVideoCallPreview,
+  SipCallState,
+  SipRegistrationState,
 };
