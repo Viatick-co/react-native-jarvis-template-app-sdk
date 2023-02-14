@@ -23,6 +23,8 @@ import org.linphone.core.Factory;
 import org.linphone.core.RegistrationState;
 import org.linphone.core.TransportType;
 import org.linphone.core.VideoActivationPolicy;
+import org.linphone.core.AudioDevice;
+import org.linphone.core.CallParams;
 
 public class SipApplication {
 
@@ -149,6 +151,67 @@ public class SipApplication {
     Call currentCall = sipCore.getCurrentCall();
     if (currentCall != null) {
       currentCall.terminate();
+    }
+  }
+
+  public static void toggleMute() {
+    Call currentCall = sipCore.getCurrentCall();
+    if (currentCall != null) {
+      boolean muted = currentCall.getMicrophoneMuted();
+      if (muted == true) {
+        Log.d(LOG_TAG, "UNMUTED");
+        currentCall.setMicrophoneMuted(false);
+      } else {
+        Log.d(LOG_TAG, "MUTED");
+        currentCall.setMicrophoneMuted(true);
+      }
+    }
+  }
+
+  public static void toggleVideo() {
+    Call currentCall = sipCore.getCurrentCall();
+    CallParams params = currentCall.getParams();
+    if (params.videoEnabled() == true) {
+      params.enableVideo(false);
+    } else {
+      params.enableVideo(true);
+    }
+    currentCall.setParams(params);
+    currentCall.update(params);
+  }
+
+  public static void toggleCamera() {
+    String currentDevice = sipCore.getVideoDevice();
+    Log.d("currentDevice", currentDevice);
+    if (currentDevice.equals("FrontFacingCamera")) {
+      sipCore.setVideoDevice("BackFacingCamera");
+    } else {
+      sipCore.setVideoDevice("FrontFacingCamera");
+    }
+  }
+
+  public static void toggleSpeaker() {
+    Call currentCall = sipCore.getCurrentCall();
+    if (currentCall != null) {
+      AudioDevice currentAudioDevice = currentCall.getOutputAudioDevice();
+      boolean speakerEnabled = currentAudioDevice.getType() == AudioDevice.Type.Speaker;
+      if (speakerEnabled == true) {
+        for (AudioDevice audioDevice : sipCore.getAudioDevices()) {
+          if (audioDevice.getType() == AudioDevice.Type.Earpiece) {
+            currentCall.setOutputAudioDevice(audioDevice);
+            Log.d(LOG_TAG, "switched to Earpiece");
+            return;
+          }
+        }
+      } else {
+        for (AudioDevice audioDevice : sipCore.getAudioDevices()) {
+          if (audioDevice.getType() == AudioDevice.Type.Speaker) {
+            currentCall.setOutputAudioDevice(audioDevice);
+            Log.d(LOG_TAG, "switched to Speaker");
+            return;
+          }
+        }
+      }
     }
   }
 

@@ -227,6 +227,26 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
     SipApplication.rejectIncomingCall();
   }
 
+  @ReactMethod
+  public void toggleMute() {
+    SipApplication.toggleMute();
+  }
+
+  @ReactMethod
+  public void toggleSpeaker() {
+    SipApplication.toggleSpeaker();
+  }
+
+  @ReactMethod
+  public void toggleVideo() {
+    SipApplication.toggleVideo();
+  }
+
+  @ReactMethod
+  public void toggleCamera() {
+    SipApplication.toggleCamera();
+  }
+
   // Required for rn built in EventEmitter Calls.
   @ReactMethod
   public void addListener(String eventName) {

@@ -125,6 +125,22 @@ const rejectIncomingCall = (): void => {
   JarvisTemplateAppSdk.rejectIncomingCall();
 };
 
+const toggleMute = (): void => {
+  JarvisTemplateAppSdk.toggleMute();
+};
+
+const toggleSpeaker = (): void => {
+  JarvisTemplateAppSdk.toggleSpeaker();
+};
+
+const toggleVideo = (): void => {
+  JarvisTemplateAppSdk.toggleVideo();
+};
+
+const toggleCamera = (): void => {
+  JarvisTemplateAppSdk.toggleCamera();
+};
+
 const SipVideoCallPreviewRaw = requireNativeComponent('SipVideoCallPreview');
 
 const SipVideoCallPreview: React.FC<{
@@ -141,6 +157,10 @@ export {
   stopSipApplication,
   answerIncomingCall,
   rejectIncomingCall,
+  toggleMute,
+  toggleSpeaker,
+  toggleVideo,
+  toggleCamera,
   BeaconInfo,
   NotifcationInfo,
   SipVideoCallPreview,
