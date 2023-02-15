@@ -79,8 +79,9 @@ export default function App() {
     console.log('onSipAccStateChange', state);
   };
 
-  const onSipCallStateChange = (state: SipCallState): void => {
+  const onSipCallStateChange = (state: SipCallState, address: string): void => {
     console.log('onSipCallStateChange', state);
+    console.log('Address ', address);
     if (state === SipCallState.IncomingReceived) {
       console.log('Incoming Received');
 

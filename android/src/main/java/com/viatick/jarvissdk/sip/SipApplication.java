@@ -50,8 +50,12 @@ public class SipApplication {
       super.onCallStateChanged(core, call, state, message);
 
       Log.d(LOG_TAG, "Call " + state);
-      if (appStateListener != null) {
-        appStateListener.onCallStateChanged(state);
+        if (appStateListener != null) {
+        String remoteAddress = "";
+        if (call != null) {
+          remoteAddress = call.getRemoteContact();
+        }
+        appStateListener.onCallStateChanged(state, remoteAddress);
       }
     }
   };
