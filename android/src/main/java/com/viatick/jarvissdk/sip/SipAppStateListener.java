@@ -7,6 +7,6 @@ public interface SipAppStateListener {
 
   void onAccountRegistrationStateChanged(RegistrationState state);
 
-  void onCallStateChanged(Call.State callState);
+  void onCallStateChanged(Call.State callState, String remoteAddress);
 
 }

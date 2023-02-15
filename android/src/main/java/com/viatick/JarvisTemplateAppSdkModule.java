@@ -51,9 +51,10 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
     }
 
     @Override
-    public void onCallStateChanged(Call.State callState) {
+    public void onCallStateChanged(Call.State callState, String remoteAddress) {
       WritableMap eventBody = Arguments.createMap();
       eventBody.putInt("state", callState.toInt());
+      eventBody.putString("remoteAddress", remoteAddress);
 
       getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
         .emit("SipCallState", eventBody);

@@ -37,7 +37,7 @@ const JarvisTemplateAppSdk = NativeModules.JarvisTemplateAppSdk
     );
 
 let onAccountRegistrationStateListener: (state: number) => void;
-let onCallStateListener: (state: number) => void;
+let onCallStateListener: (state: number, remoteAddress: String) => void;
 
 const eventEmitter = new NativeEventEmitter(NativeModules.JarvisTemplateAppSdk);
 
@@ -50,9 +50,9 @@ eventEmitter.addListener('SipAppAccountState', (event) => {
 });
 
 eventEmitter.addListener('SipCallState', (event) => {
-  const { state } = event;
+  const { state, remoteAddress } = event;
 
-  !!onCallStateListener && onCallStateListener(state);
+  !!onCallStateListener && onCallStateListener(state, remoteAddress);
 });
 
 const startScanService = async (
@@ -101,7 +101,7 @@ const initSipApplication = async (
   username: string,
   password: string,
   onAccountRegistrationStateChange: (state: SipRegistrationState) => void,
-  onCallStateChange: (state: SipCallState) => void
+  onCallStateChange: (state: SipCallState, remoteAddress: String) => void
 ): Promise<InitSipAppResult> => {
   onAccountRegistrationStateListener = onAccountRegistrationStateChange;
   onCallStateListener = onCallStateChange;
