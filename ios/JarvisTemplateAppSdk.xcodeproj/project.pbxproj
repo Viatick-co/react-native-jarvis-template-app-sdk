@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E5651434C549FF8CA0AABAB /* Pods_JarvisTemplateAppSdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E308023FD836920E4024AAB0 /* Pods_JarvisTemplateAppSdk.framework */; };
 		F4FF95D7245B92E800C19C63 /* JarvisTemplateAppSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,7 +25,10 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libJarvisTemplateAppSdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJarvisTemplateAppSdk.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D43F23FB011D2A15E888220 /* Pods-JarvisTemplateAppSdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JarvisTemplateAppSdk.release.xcconfig"; path = "Target Support Files/Pods-JarvisTemplateAppSdk/Pods-JarvisTemplateAppSdk.release.xcconfig"; sourceTree = "<group>"; };
+		4F6A3C4CFB891921C8BE7678 /* Pods-JarvisTemplateAppSdk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JarvisTemplateAppSdk.debug.xcconfig"; path = "Target Support Files/Pods-JarvisTemplateAppSdk/Pods-JarvisTemplateAppSdk.debug.xcconfig"; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* JarvisTemplateAppSdk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JarvisTemplateAppSdk.m; sourceTree = "<group>"; };
+		E308023FD836920E4024AAB0 /* Pods_JarvisTemplateAppSdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JarvisTemplateAppSdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4FF95D5245B92E700C19C63 /* JarvisTemplateAppSdk-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JarvisTemplateAppSdk-Bridging-Header.h"; sourceTree = "<group>"; };
 		F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = JarvisTemplateAppSdk.swift; sourceTree = "<group>"; tabWidth = 2; };
 /* End PBXFileReference section */
@@ -34,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E5651434C549FF8CA0AABAB /* Pods_JarvisTemplateAppSdk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,7 +60,27 @@
 				B3E7B5891CC2AC0600A0062D /* JarvisTemplateAppSdk.m */,
 				F4FF95D5245B92E700C19C63 /* JarvisTemplateAppSdk-Bridging-Header.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
+				ED3DFF796D10CE7010B7B7BE /* Pods */,
+				9B58C07FD5D0CC47D37A0346 /* Frameworks */,
 			);
+			sourceTree = "<group>";
+		};
+		9B58C07FD5D0CC47D37A0346 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E308023FD836920E4024AAB0 /* Pods_JarvisTemplateAppSdk.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		ED3DFF796D10CE7010B7B7BE /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4F6A3C4CFB891921C8BE7678 /* Pods-JarvisTemplateAppSdk.debug.xcconfig */,
+				1D43F23FB011D2A15E888220 /* Pods-JarvisTemplateAppSdk.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +90,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "JarvisTemplateAppSdk" */;
 			buildPhases = (
+				D6ABBCF3D4229EDE58262FA1 /* [CP] Check Pods Manifest.lock */,
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
 				58B511D91A9E6C8500147676 /* CopyFiles */,
@@ -109,6 +135,31 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		D6ABBCF3D4229EDE58262FA1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-JarvisTemplateAppSdk-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		58B511D71A9E6C8500147676 /* Sources */ = {
@@ -219,6 +270,7 @@
 		};
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F6A3C4CFB891921C8BE7678 /* Pods-JarvisTemplateAppSdk.debug.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -238,6 +290,7 @@
 		};
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1D43F23FB011D2A15E888220 /* Pods-JarvisTemplateAppSdk.release.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

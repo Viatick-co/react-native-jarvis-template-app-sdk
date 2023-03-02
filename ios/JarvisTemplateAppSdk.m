@@ -21,6 +21,11 @@ RCT_EXTERN_METHOD(stopScanService:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(getScanServiceStatus:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(initSipApplication:(NSString*)username
+                withPassword:(NSString*)password
+                withResolver:(RCTPromiseResolveBlock)resolve
+                withRejecter:(RCTPromiseRejectBlock)reject)
+                
 + (BOOL)requiresMainQueueSetup
 {
   return NO;

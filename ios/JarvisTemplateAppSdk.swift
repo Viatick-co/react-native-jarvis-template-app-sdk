@@ -2,6 +2,8 @@ import CoreBluetooth
 import CoreLocation
 import UserNotifications
 import React
+import linphonesw
+import AVFoundation
 
 struct AttendanceBeacon : Codable {
   var uuid : String
@@ -49,6 +51,18 @@ extension String {
 @objc(JarvisTemplateAppSdk)
 class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNotificationCenterDelegate {
   
+  // SIP Call Vars
+  // var mCore: Core!
+  // var coreVersion: String = Core.getVersion
+  
+  // var mAccount: Account?
+  // var mCoreDelegate : CoreDelegate!
+  var username : String = "7002"
+  var passwd : String = "7002"
+  var domain : String = "168.138.190.154"
+  var loggedIn: Bool = false
+
+
   let apiHost = "https://jarvis.viatick.com/apis";
   
   var backgroundTask: UIBackgroundTaskIdentifier = .invalid;
@@ -361,8 +375,18 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
         return;
       }
     })
-
     task.resume();
+  }
+
+  @objc(initSipApplication:withPassword:withResolver:withRejecter:)
+  func initSipApplication(username: String, password: String, resolve:@escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+
+    self.username = username
+    self.passwd = password
+    
+    print("intercomSDK: INIT SIP \(self.username)")
+    let result: [String: Any] = ["success": true, "errorCode": 987]
+    resolve(result)
   }
   
   @objc(stopScanService:withRejecter:)

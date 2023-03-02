@@ -1,0 +1,14 @@
+platform :ios, '11.0'
+source "https://gitlab.linphone.org/BC/public/podspec.git"
+
+def basic_pods
+	pod 'linphone-sdk', '~> 5.0.48'
+end
+
+target 'JarvisTemplateAppSdk' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for IncomingCall
+  basic_pods
+end
