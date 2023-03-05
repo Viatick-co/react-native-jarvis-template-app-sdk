@@ -51,8 +51,8 @@ extension String {
   }
 }
 
- @objc(SipVideoCallPreviewManager)
- class SipVideoCallPreviewManager: RCTViewManager {
+ @objc(SipVideoCallPreviewManager2)
+ class SipVideoCallPreviewManager2: RCTViewManager {
  
   override static func requiresMainQueueSetup() -> Bool {
     return true
@@ -80,45 +80,135 @@ extension String {
  }
 
 @objc(JarvisTemplateAppSdk)
-class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNotificationCenterDelegate {
+class JarvisTemplateAppSdk: RCTEventEmitter, ObservableObject, CLLocationManagerDelegate, UNUserNotificationCenterDelegate {
   
-    public static let shared = JarvisTemplateAppSdk()
+    // static let shared = JarvisTemplateAppSdk()
+    // SIP Call Vars
+    var mCore: Core!
+    var coreVersion: String = Core.getVersion
     
+    var mAccount: Account?
+    var mCoreDelegate : CoreDelegate!
+    var domain : String = "168.138.190.154"
     
-    private override init() {
+    var cameraPermissionGranted = false
+    var audioPermissionGranted = false
+
+    let apiHost = "https://jarvis.viatick.com/apis";
+    
+    var backgroundTask: UIBackgroundTaskIdentifier = .invalid;
+    
+    var resultTimer : Timer?;
+    var scannedBleMap : Dictionary<String, PeripheralDetail> = [:];
+    
+    private var filterUuid:String = "";
+    private var filterMajor:NSNumber = 0;
+    private var filterRegion:CLBeaconRegion?;
+
+    private var appKey = "";
+    private var locatingRange = 3.0;
+    
+    private var locationManager:CLLocationManager?;
+    
+    private var scanning = false;
+    private var starting = false;
+    private var lastFoundSignalTime : Int64 = 0;
+    
+    override init() {
           super.init()
+      requestCameraPermission()
+      requestAudioPermission()
+
+      if (mCore != nil) {
+        print("JJP: not null mCore")
+        let result: [String: Any] = ["success": false, "errorCode": 0]
+       // resolve(result)
+        return
       }
+
+      do {
+        print("JJP: INIT SIP")
+
+        LoggingService.Instance.logLevel = LogLevel.Debug
+
+        try? mCore = Factory.Instance.createCore(configPath: "", factoryConfigPath: "", systemContext: nil)
+
+        mCore.videoDisplayEnabled = true
+        mCore.videoCaptureEnabled = true
+        
+        mCore.activateAudioSession(actived: true)
+
+        let policy = mCore.videoActivationPolicy
+
+        policy?.automaticallyAccept = true
+        policy?.automaticallyInitiate = true
+        
+        mCore.videoActivationPolicy = policy
+
+        let transport : TransportType = TransportType.Udp
+        
+        let authInfo = try Factory.Instance.createAuthInfo(username: "9004", userid: "", passwd: "9004", ha1: "", realm: "", domain: domain)
+        let accountParams = try mCore.createAccountParams()
+        let identity = try Factory.Instance.createAddress(addr: String("sip:9004@" + domain))
+        try! accountParams.setIdentityaddress(newValue: identity)
+        let address = try Factory.Instance.createAddress(addr: String("sip:" + domain))
+        try address.setTransport(newValue: transport)
+        try accountParams.setServeraddress(newValue: address)
+        accountParams.registerEnabled = true
+        
+        mAccount = try mCore.createAccount(params: accountParams)
+        mCore.addAuthInfo(info: authInfo)
+        try mCore.addAccount(account: mAccount!)
+        mCore.defaultAccount = mAccount
+
+        mCoreDelegate = CoreDelegateStub(
+          onCallStateChanged: { (core: Core, call: Call, state: Call.State, message: String) in
+            print("IntercomSDK: onCallStateChanged : \(state) remoteAddress :  \(call.remoteAddress!.asStringUriOnly())")
+              
+              if (state == .IncomingReceived) {
+do {
+    try self.mCore.currentCall?.accept()
+		} catch { NSLog(error.localizedDescription) }
+              }
+            let eventBody:[String: Any] = [
+              "state" : state.rawValue,
+              "remoteAddress": call.remoteContact
+            ];
+   
+        //  self.sendEvent(withName: "SipCallState", body: eventBody)
+
+        }, onAudioDeviceChanged: { (core: Core, device: AudioDevice) in
+          // This callback will be triggered when a successful audio device has been changed
+        }, onAudioDevicesListUpdated: { (core: Core) in
+          // This callback will be triggered when the available devices list has changed,
+          // for example after a bluetooth headset has been connected/disconnected.
+        }, onAccountRegistrationStateChanged: { (core: Core, account: Account, state: RegistrationState, message: String) in
+          print("IntercomSDK: onAccountRegistrationStateChanged \(state) for user id \( String(describing: account.params?.identityAddress?.asString()))\n")
+          let eventBody:[String: Any] = [
+              "state" : state.rawValue
+          ];
+   
+       //   self.sendEvent(withName: "SipAppAccountState", body: eventBody)
+        })
+            
+        mCore.addDelegate(delegate: mCoreDelegate)
+
+        try? mCore.start()
+
+          
+        let result: [String: Any] = ["success": true, "errorCode": 0]
+        print("all good")
+        // resolve(result)
+      }
+      catch {
+        NSLog(error.localizedDescription)
+        let result: [String: Any] = ["success": false, "errorCode": 999]
+        // resolve(result)
+      }
+      }
+
     
-  // SIP Call Vars
-  public var mCore: Core!
-  var coreVersion: String = Core.getVersion
-  
-  var mAccount: Account?
-  var mCoreDelegate : CoreDelegate!
-  var domain : String = "168.138.190.154"
-  
-  var cameraPermissionGranted = false
-  var audioPermissionGranted = false
-
-  let apiHost = "https://jarvis.viatick.com/apis";
-  
-  var backgroundTask: UIBackgroundTaskIdentifier = .invalid;
-  
-  var resultTimer : Timer?;
-  var scannedBleMap : Dictionary<String, PeripheralDetail> = [:];
-  
-  private var filterUuid:String = "";
-  private var filterMajor:NSNumber = 0;
-  private var filterRegion:CLBeaconRegion?;
-
-  private var appKey = "";
-  private var locatingRange = 3.0;
-  
-  private var locationManager:CLLocationManager?;
-  
-  private var scanning = false;
-  private var starting = false;
-  private var lastFoundSignalTime : Int64 = 0;
+ 
 
     
   func registerBackgroundTask() {
@@ -442,9 +532,6 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
       LoggingService.Instance.logLevel = LogLevel.Debug
 
       try? mCore = Factory.Instance.createCore(configPath: "", factoryConfigPath: "", systemContext: nil)
-  
-      let videoCallView = SipVideoCallPreviewManager().videoCallView
-      mCore.nativeVideoWindow = videoCallView
 
       mCore.videoDisplayEnabled = true
       mCore.videoCaptureEnabled = true

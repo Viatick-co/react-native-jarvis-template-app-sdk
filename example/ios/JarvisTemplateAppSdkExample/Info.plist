@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key></key>
+	<string></string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -22,6 +24,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -35,18 +39,20 @@
 			</dict>
 		</dict>
 	</dict>
-  <key>NSBluetoothAlwaysUsageDescription</key>
-  <string>We need Bluetooth to do attendance taking</string>
-  <key>NSBluetoothPeripheralUsageDescription</key>
-  <string>We need Bluetooth to do attendance taking</string>
-  <key>NSCameraUsageDescription</key>
-  <string>Jarvis would like to use your camera</string>
-  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-  <string>We need location to do attendance taking</string>
-  <key>NSLocationAlwaysUsageDescription</key>
-  <string>We need location to do attendance taking</string>
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>We need location to do attendance taking</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We need Bluetooth to do attendance taking</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We need Bluetooth to do attendance taking</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Jarvis would like to use your camera</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need location to do attendance taking</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need location to do attendance taking</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need location to do attendance taking</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

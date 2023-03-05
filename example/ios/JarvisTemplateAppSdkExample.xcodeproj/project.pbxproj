@@ -10,7 +10,10 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		350DAC3029B2367A00066CA1 /* Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350DAC2F29B2367A00066CA1 /* Testing.swift */; };
+		3576FEBC29B5145500FE5E8E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3576FEBB29B5145500FE5E8E /* AVFoundation.framework */; };
+		3576FEBE29B5145C00FE5E8E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3576FEBD29B5145C00FE5E8E /* CoreMedia.framework */; };
+		3576FEC029B5146400FE5E8E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3576FEBF29B5146400FE5E8E /* CoreVideo.framework */; };
+		3576FEC229B5146C00FE5E8E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3576FEC129B5146C00FE5E8E /* VideoToolbox.framework */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		B1C98D0025B07A5B0FA6AE80 /* Pods_JarvisTemplateAppSdkExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B690CB933772A9C66F18D113 /* Pods_JarvisTemplateAppSdkExample.framework */; };
 /* End PBXBuildFile section */
@@ -22,7 +25,10 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = JarvisTemplateAppSdkExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = JarvisTemplateAppSdkExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = JarvisTemplateAppSdkExample/main.m; sourceTree = "<group>"; };
-		350DAC2F29B2367A00066CA1 /* Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Testing.swift; sourceTree = "<group>"; };
+		3576FEBB29B5145500FE5E8E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3576FEBD29B5145C00FE5E8E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		3576FEBF29B5146400FE5E8E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		3576FEC129B5146C00FE5E8E /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		3B4392A12AC88292D35C810B /* Pods-JarvisTemplateAppSdkExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JarvisTemplateAppSdkExample.debug.xcconfig"; path = "Target Support Files/Pods-JarvisTemplateAppSdkExample/Pods-JarvisTemplateAppSdkExample.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-JarvisTemplateAppSdkExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JarvisTemplateAppSdkExample.release.xcconfig"; path = "Target Support Files/Pods-JarvisTemplateAppSdkExample/Pods-JarvisTemplateAppSdkExample.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = JarvisTemplateAppSdkExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -36,6 +42,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3576FEC229B5146C00FE5E8E /* VideoToolbox.framework in Frameworks */,
+				3576FEC029B5146400FE5E8E /* CoreVideo.framework in Frameworks */,
+				3576FEBE29B5145C00FE5E8E /* CoreMedia.framework in Frameworks */,
+				3576FEBC29B5145500FE5E8E /* AVFoundation.framework in Frameworks */,
 				B1C98D0025B07A5B0FA6AE80 /* Pods_JarvisTemplateAppSdkExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -60,6 +70,10 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3576FEC129B5146C00FE5E8E /* VideoToolbox.framework */,
+				3576FEBF29B5146400FE5E8E /* CoreVideo.framework */,
+				3576FEBD29B5145C00FE5E8E /* CoreMedia.framework */,
+				3576FEBB29B5145500FE5E8E /* AVFoundation.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				B690CB933772A9C66F18D113 /* Pods_JarvisTemplateAppSdkExample.framework */,
 			);
@@ -76,7 +90,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				350DAC2F29B2367A00066CA1 /* Testing.swift */,
 				13B07FAE1A68108700A75B9A /* JarvisTemplateAppSdkExample */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -252,7 +265,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				350DAC3029B2367A00066CA1 /* Testing.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);

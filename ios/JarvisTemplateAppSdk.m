@@ -3,7 +3,6 @@
 #import <React/RCTViewManager.h>
 
 @interface RCT_EXTERN_MODULE(SipVideoCallPreviewManager, RCTViewManager)
-    RCT_EXPORT_VIEW_PROPERTY(myText, NSString)
 @end
 
 @interface RCT_EXTERN_MODULE(JarvisTemplateAppSdk, NSObject)
