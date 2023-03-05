@@ -2,6 +2,11 @@ import CoreBluetooth
 import CoreLocation
 import UserNotifications
 import React
+import linphonesw
+import AVFoundation
+import UIKit
+import SwiftUI
+import Foundation
 
 struct AttendanceBeacon : Codable {
   var uuid : String
@@ -46,9 +51,55 @@ extension String {
   }
 }
 
+ @objc(SipVideoCallPreviewManager)
+ class SipVideoCallPreviewManager: RCTViewManager {
+ 
+  override static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+     
+  let videoCallView = UIView(frame: CGRect(x: 0, y: 0, width: 400, height: 400))
+   
+   override func view() -> UIView! {
+
+    //  self.remoteVideoView.backgroundColor = UIColor.blue
+    //  self.remoteVideoView.translatesAutoresizingMaskIntoConstraints = false
+
+
+    //  self.videoCallView.addSubview(self.remoteVideoView)
+
+    //  self.remoteVideoView.topAnchor.constraint(equalTo: self.videoCallView.topAnchor).isActive = true
+    //  self.remoteVideoView.leadingAnchor.constraint(equalTo: self.videoCallView.leadingAnchor).isActive = true
+    //  self.remoteVideoView.trailingAnchor.constraint(equalTo: self.videoCallView.trailingAnchor).isActive = true
+    //  self.remoteVideoView.bottomAnchor.constraint(equalTo: self.videoCallView.bottomAnchor).isActive = true
+     //  videoCallView.addSubview(remoteVideoView)
+
+      return videoCallView
+   }
+   
+ }
+
 @objc(JarvisTemplateAppSdk)
 class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNotificationCenterDelegate {
   
+    public static let shared = JarvisTemplateAppSdk()
+    
+    
+    private override init() {
+          super.init()
+      }
+    
+  // SIP Call Vars
+  public var mCore: Core!
+  var coreVersion: String = Core.getVersion
+  
+  var mAccount: Account?
+  var mCoreDelegate : CoreDelegate!
+  var domain : String = "168.138.190.154"
+  
+  var cameraPermissionGranted = false
+  var audioPermissionGranted = false
+
   let apiHost = "https://jarvis.viatick.com/apis";
   
   var backgroundTask: UIBackgroundTaskIdentifier = .invalid;
@@ -68,6 +119,7 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
   private var scanning = false;
   private var starting = false;
   private var lastFoundSignalTime : Int64 = 0;
+
     
   func registerBackgroundTask() {
     self.backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "ble-background-task", expirationHandler: {
@@ -181,7 +233,6 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
       
       self.registerBackgroundTask();
       
-      
       self.locationManager!.startUpdatingLocation();
       self.locationManager!.startMonitoringSignificantLocationChanges();
       self.locationManager!.startMonitoring(for: self.filterRegion!);
@@ -238,7 +289,7 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
       
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
-        print("Error with the response, unexpected status code: \(response)")
+          // print("Error with the response, unexpected status code: \(response)")
         return
       }
 
@@ -364,6 +415,124 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
 
     task.resume();
   }
+
+  @objc(answerIncomingCall)
+  func answerIncomingCall() -> Void {
+    do {
+			try mCore.currentCall?.accept()
+		} catch { NSLog(error.localizedDescription) }
+  }
+    
+
+  @objc(initSipApplication:withPassword:withResolver:withRejecter:)
+  func initSipApplication(username: String, password: String, resolve:@escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+
+    requestCameraPermission()
+    requestAudioPermission()
+
+    if (mCore != nil) {
+      let result: [String: Any] = ["success": false, "errorCode": 0]
+      resolve(result)
+      return
+    }
+
+    do {
+      print("intercomSDK: INIT SIP \(username)")
+
+      LoggingService.Instance.logLevel = LogLevel.Debug
+
+      try? mCore = Factory.Instance.createCore(configPath: "", factoryConfigPath: "", systemContext: nil)
+  
+      let videoCallView = SipVideoCallPreviewManager().videoCallView
+      mCore.nativeVideoWindow = videoCallView
+
+      mCore.videoDisplayEnabled = true
+      mCore.videoCaptureEnabled = true
+      
+      mCore.activateAudioSession(actived: true)
+
+      let policy = mCore.videoActivationPolicy
+
+      policy?.automaticallyAccept = true
+      policy?.automaticallyInitiate = true
+      
+      mCore.videoActivationPolicy = policy
+
+      let transport : TransportType = TransportType.Udp
+      
+      let authInfo = try Factory.Instance.createAuthInfo(username: username, userid: "", passwd: password, ha1: "", realm: "", domain: domain)
+      let accountParams = try mCore.createAccountParams()
+      let identity = try Factory.Instance.createAddress(addr: String("sip:" + username + "@" + domain))
+      try! accountParams.setIdentityaddress(newValue: identity)
+      let address = try Factory.Instance.createAddress(addr: String("sip:" + domain))
+      try address.setTransport(newValue: transport)
+      try accountParams.setServeraddress(newValue: address)
+      accountParams.registerEnabled = true
+      
+      mAccount = try mCore.createAccount(params: accountParams)
+      mCore.addAuthInfo(info: authInfo)
+      try mCore.addAccount(account: mAccount!)
+      mCore.defaultAccount = mAccount
+
+      mCoreDelegate = CoreDelegateStub( 
+        onCallStateChanged: { (core: Core, call: Call, state: Call.State, message: String) in
+          print("IntercomSDK: onCallStateChanged : \(state) remoteAddress :  \(call.remoteAddress!.asStringUriOnly())")
+            
+          let eventBody:[String: Any] = [
+            "state" : state.rawValue,
+            "remoteAddress": call.remoteContact
+          ];
+ 
+        self.sendEvent(withName: "SipCallState", body: eventBody)
+
+      }, onAudioDeviceChanged: { (core: Core, device: AudioDevice) in
+        // This callback will be triggered when a successful audio device has been changed
+      }, onAudioDevicesListUpdated: { (core: Core) in
+        // This callback will be triggered when the available devices list has changed,
+        // for example after a bluetooth headset has been connected/disconnected.
+      }, onAccountRegistrationStateChanged: { (core: Core, account: Account, state: RegistrationState, message: String) in
+        print("IntercomSDK: onAccountRegistrationStateChanged \(state) for user id \( String(describing: account.params?.identityAddress?.asString()))\n")
+        let eventBody:[String: Any] = [
+            "state" : state.rawValue
+        ];
+ 
+        self.sendEvent(withName: "SipAppAccountState", body: eventBody)
+      })
+          
+		  mCore.addDelegate(delegate: mCoreDelegate)
+
+      try? mCore.start()
+
+        
+      let result: [String: Any] = ["success": true, "errorCode": 0]
+      resolve(result)
+    }
+    catch { 
+      NSLog(error.localizedDescription)
+      let result: [String: Any] = ["success": false, "errorCode": 999]
+      resolve(result)
+    }
+  }
+
+  func requestCameraPermission() {
+    AVCaptureDevice.requestAccess(for: .video, completionHandler: {accessGranted in
+      DispatchQueue.main.async {
+        self.cameraPermissionGranted = accessGranted
+      }
+    })
+  }
+  
+  func requestAudioPermission() {
+    AVAudioSession.sharedInstance().requestRecordPermission({(granted: Bool)-> Void in
+      if granted {
+        print("intercomSDK: permission microphone GRANTED")
+        self.audioPermissionGranted = true
+      } else{
+        self.audioPermissionGranted = false
+        print("intercomSDK: permission microphone DENIED")
+      }
+    })
+  }
   
   @objc(stopScanService:withRejecter:)
   func stopScanService(resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
@@ -377,7 +546,7 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     
     resolve(true)
   }
-  
+
   @objc(getScanServiceStatus:withRejecter:)
   func getScanServiceStatus(resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
     print("getScanServiceStatus called", self.scannedBleMap.values);
@@ -471,6 +640,6 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
    }
   
   override func supportedEvents() -> [String]! {
-    return ["BeaconInformation"];
+    return ["BeaconInformation", "SipCallState", "SipAppAccountState"];
   }
 }

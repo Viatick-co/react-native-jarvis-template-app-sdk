@@ -1,5 +1,10 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
+#import <React/RCTViewManager.h>
+
+@interface RCT_EXTERN_MODULE(SipVideoCallPreviewManager, RCTViewManager)
+    RCT_EXPORT_VIEW_PROPERTY(myText, NSString)
+@end
 
 @interface RCT_EXTERN_MODULE(JarvisTemplateAppSdk, NSObject)
 
@@ -21,9 +26,17 @@ RCT_EXTERN_METHOD(stopScanService:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(getScanServiceStatus:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(initSipApplication:(NSString*)username
+                withPassword:(NSString*)password
+                withResolver:(RCTPromiseResolveBlock)resolve
+                withRejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(answerIncomingCall)
+                
 + (BOOL)requiresMainQueueSetup
 {
   return NO;
 }
 
 @end
+

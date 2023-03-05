@@ -76,11 +76,11 @@ export default function App() {
   };
 
   const onSipAccStateChange = (state: SipRegistrationState): void => {
-    console.log('onSipAccStateChange', state);
+    console.log('JS: onSipAccStateChange', state);
   };
 
   const onSipCallStateChange = (state: SipCallState, address: string): void => {
-    console.log('onSipCallStateChange', state);
+    console.log('JS: onSipCallStateChange', state, address);
     console.log('Address ', address);
     if (state === SipCallState.IncomingReceived) {
       console.log('Incoming Received');
@@ -98,23 +98,21 @@ export default function App() {
 
   useEffect(() => {
     requestPermission().then(async () => {
-      const cameraGranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.CAMERA!
-      );
-      const recordAudioGranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO!
-      );
-      console.log('granted', cameraGranted, recordAudioGranted);
-      if (cameraGranted && recordAudioGranted) {
-        const initResult = await initSipApplication(
-          '7004',
-          '7004',
-          onSipAccStateChange,
-          onSipCallStateChange
-        );
-        console.log('initResult', initResult);
-      }
+      console.log('requested');
     });
+  }, []);
+
+  useEffect(() => {
+    const getStart = async (): Promise<void> => {
+      const initResult = await initSipApplication(
+        '9004',
+        '9004',
+        onSipAccStateChange,
+        onSipCallStateChange
+      );
+      console.log('111 : initResult', initResult);
+    };
+    getStart();
   }, []);
 
   const muteHandler = () => {
@@ -139,7 +137,6 @@ export default function App() {
     <SafeAreaView style={backgroundStyle}>
       <View style={{ flex: 1 }}>
         <SipVideoCallPreview style={{ flex: 1 }} />
-
         <View
           style={{
             flexDirection: 'row',
