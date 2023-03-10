@@ -10,15 +10,12 @@ import Foundation
 import React
 import SwiftUI
 
-
 @objc(SipVideoCallPreviewManager)
 class SipVideoCallPreviewManager: RCTViewManager {
-    
-    // @ObservedObject var videoCallContext = JarvisTemplateAppSdk()
-    
+ 
     override func view() -> UIView! {
         
-        let contentView = TestingView()
+        let contentView = VideoCallView()
         if #available(iOS 13.0, *) {
             return UIHostingController(rootView: contentView).view
         } else {

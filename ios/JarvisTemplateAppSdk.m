@@ -31,6 +31,16 @@ RCT_EXTERN_METHOD(initSipApplication:(NSString*)username
                 withRejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(answerIncomingCall)
+
+RCT_EXTERN_METHOD(toggleMute)
+
+RCT_EXTERN_METHOD(toggleSpeaker)
+
+RCT_EXTERN_METHOD(toggleVideo)
+
+RCT_EXTERN_METHOD(toggleCamera)
+
+RCT_EXTERN_METHOD(rejectIncomingCall)
                 
 + (BOOL)requiresMainQueueSetup
 {

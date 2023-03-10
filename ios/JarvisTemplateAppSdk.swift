@@ -425,7 +425,71 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
 			try mCore.currentCall?.accept()
 		} catch { NSLog(error.localizedDescription) }
   }
+
+  @objc(rejectIncomingCall)
+  func rejectIncomingCall() -> Void {
+   do {
+			try mCore.currentCall?.terminate()
+		} catch { NSLog(error.localizedDescription) }
+  }
+
+  @objc(toggleVideo)
+  func toggleVideo() -> Void {
+   do {
+            if (mCore.callsNb == 0) { return }
+            let coreCall = (mCore.currentCall != nil) ? mCore.currentCall : mCore.calls[0]
+            // We will need the CAMERA permission for video call
+            
+            if let call = coreCall {
+                let params = try mCore.createCallParams(call: call)
+                params.videoEnabled = !(call.currentParams!.videoEnabled)
+                try call.update(params: params)
+            }
+        } catch { NSLog(error.localizedDescription) }
+  }
     
+  @objc(toggleCamera)
+  func toggleCamera() -> Void {
+      do {
+            // Currently used camera
+            let currentDevice = mCore.videoDevice
+
+            for camera in mCore.videoDevicesList {
+                // All devices will have a "Static picture" fake camera, and we don't want to use it
+                if (camera != currentDevice && camera != "StaticImage: Static picture") {
+                    try mCore.setVideodevice(newValue: camera)
+                    break
+                }
+            }
+        } catch { NSLog(error.localizedDescription) }
+  }
+
+  @objc(toggleMute)
+  func toggleMute() -> Void {
+    do {
+			try mCore.micEnabled = !mCore.micEnabled
+		} catch { NSLog(error.localizedDescription) }
+  }
+     
+  @objc(toggleSpeaker)
+  func toggleSpeaker() -> Void {
+    do {
+      // Get the currently used audio device
+      let currentAudioDevice = mCore.currentCall?.outputAudioDevice
+      let speakerEnabled = currentAudioDevice?.type == AudioDeviceType.Speaker
+
+      // Get a list of all available audio devices using
+      for audioDevice in mCore.audioDevices {
+        if (speakerEnabled && audioDevice.type == AudioDeviceType.Microphone) {
+          mCore.currentCall?.outputAudioDevice = audioDevice
+          return
+        } else if (!speakerEnabled && audioDevice.type == AudioDeviceType.Speaker) {
+          mCore.currentCall?.outputAudioDevice = audioDevice
+          return
+        }
+      }
+		} catch { NSLog(error.localizedDescription) }
+  }
 
   @objc(initSipApplication:withPassword:withResolver:withRejecter:)
   func initSipApplication(username: String, password: String, resolve:@escaping RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
@@ -434,9 +498,9 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     requestAudioPermission()
 
     if (mCore != nil) {
-        print("IntercomSDK: set nativeVideoWindow from TestingView 1");
-        mCore.nativeVideoWindow = TestingView.nativeVideoWindow;
-          mCore.nativePreviewWindow = TestingView.nativePreviewWindow;
+        print("IntercomSDK: set nativeVideoWindow from VideoCallView 1");
+        mCore.nativeVideoWindow = VideoCallView.nativeVideoWindow;
+          mCore.nativePreviewWindow = VideoCallView.nativePreviewWindow;
         
       let result: [String: Any] = ["success": false, "errorCode": 0]
       resolve(result)
@@ -508,9 +572,9 @@ do {
        //   self.sendEvent(withName: "SipAppAccountState", body: eventBody)
         })
           
-          print("IntercomSDK: set nativeVideoWindow from TestingView 2");
-          mCore.nativeVideoWindow = TestingView.nativeVideoWindow;
-            mCore.nativePreviewWindow = TestingView.nativePreviewWindow;
+          print("IntercomSDK: set nativeVideoWindow from VideoCallView 2");
+          mCore.nativeVideoWindow = VideoCallView.nativeVideoWindow;
+            mCore.nativePreviewWindow = VideoCallView.nativePreviewWindow;
           
         mCore.addDelegate(delegate: mCoreDelegate)
 

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3532BE5A29B4DA40000EA468 /* TestingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3532BE5929B4DA40000EA468 /* TestingView.swift */; };
+		3532BE5A29B4DA40000EA468 /* VideoCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3532BE5929B4DA40000EA468 /* VideoCallView.swift */; };
 		35773ADC29B4EA1F009350C0 /* SipVideoCallPreviewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355E1B8129B4E55B0072AABB /* SipVideoCallPreviewManager.swift */; };
 		F4FF95D7245B92E800C19C63 /* JarvisTemplateAppSdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */; };
 /* End PBXBuildFile section */
@@ -26,7 +26,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libJarvisTemplateAppSdk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJarvisTemplateAppSdk.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		3532BE5929B4DA40000EA468 /* TestingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingView.swift; sourceTree = "<group>"; };
+		3532BE5929B4DA40000EA468 /* VideoCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCallView.swift; sourceTree = "<group>"; };
 		355E1B8129B4E55B0072AABB /* SipVideoCallPreviewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SipVideoCallPreviewManager.swift; sourceTree = "<group>"; };
 		3576FEB829B5030F00FE5E8E /* AppDelegate */ = {isa = PBXFileReference; lastKnownFileType = text; path = AppDelegate; sourceTree = "<group>"; };
 		3576FEB929B5035900FE5E8E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -62,7 +62,7 @@
 				3576FEB929B5035900FE5E8E /* SceneDelegate.swift */,
 				3576FEB829B5030F00FE5E8E /* AppDelegate */,
 				355E1B8129B4E55B0072AABB /* SipVideoCallPreviewManager.swift */,
-				3532BE5929B4DA40000EA468 /* TestingView.swift */,
+				3532BE5929B4DA40000EA468 /* VideoCallView.swift */,
 				F4FF95D6245B92E800C19C63 /* JarvisTemplateAppSdk.swift */,
 				B3E7B5891CC2AC0600A0062D /* JarvisTemplateAppSdk.m */,
 				F4FF95D5245B92E700C19C63 /* JarvisTemplateAppSdk-Bridging-Header.h */,
@@ -129,7 +129,7 @@
 			files = (
 				35773ADC29B4EA1F009350C0 /* SipVideoCallPreviewManager.swift in Sources */,
 				F4FF95D7245B92E800C19C63 /* JarvisTemplateAppSdk.swift in Sources */,
-				3532BE5A29B4DA40000EA468 /* TestingView.swift in Sources */,
+				3532BE5A29B4DA40000EA468 /* VideoCallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

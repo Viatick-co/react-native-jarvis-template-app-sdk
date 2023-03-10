@@ -19,7 +19,7 @@ import {
   toggleMute,
   toggleSpeaker,
   toggleVideo,
-  toggleCamera,
+  toggleCamera
 } from 'react-native-jarvis-template-app-sdk';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
