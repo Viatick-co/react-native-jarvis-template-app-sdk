@@ -14,12 +14,17 @@ import SwiftUI
 @objc(SipVideoCallPreviewManager)
 class SipVideoCallPreviewManager: RCTViewManager {
     
-    @ObservedObject var videoCallContext = JarvisTemplateAppSdk()
+    // @ObservedObject var videoCallContext = JarvisTemplateAppSdk()
     
     override func view() -> UIView! {
         
-        let contentView = TestingView(videoCallContext: videoCallContext)
-        return UIHostingController(rootView: contentView).view
+        let contentView = TestingView()
+        if #available(iOS 13.0, *) {
+            return UIHostingController(rootView: contentView).view
+        } else {
+            // Fallback on earlier versions
+            return nil
+        }
     }
 
     override static func requiresMainQueueSetup() -> Bool {

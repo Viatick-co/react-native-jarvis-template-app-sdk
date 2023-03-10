@@ -80,7 +80,7 @@ extension String {
  }
 
 @objc(JarvisTemplateAppSdk)
-class JarvisTemplateAppSdk: RCTEventEmitter, ObservableObject, CLLocationManagerDelegate, UNUserNotificationCenterDelegate {
+class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNotificationCenterDelegate {
   
     // static let shared = JarvisTemplateAppSdk()
     // SIP Call Vars
@@ -118,93 +118,6 @@ class JarvisTemplateAppSdk: RCTEventEmitter, ObservableObject, CLLocationManager
           super.init()
       requestCameraPermission()
       requestAudioPermission()
-
-      if (mCore != nil) {
-        print("JJP: not null mCore")
-        let result: [String: Any] = ["success": false, "errorCode": 0]
-       // resolve(result)
-        return
-      }
-
-      do {
-        print("JJP: INIT SIP")
-
-        LoggingService.Instance.logLevel = LogLevel.Debug
-
-        try? mCore = Factory.Instance.createCore(configPath: "", factoryConfigPath: "", systemContext: nil)
-
-        mCore.videoDisplayEnabled = true
-        mCore.videoCaptureEnabled = true
-        
-        mCore.activateAudioSession(actived: true)
-
-        let policy = mCore.videoActivationPolicy
-
-        policy?.automaticallyAccept = true
-        policy?.automaticallyInitiate = true
-        
-        mCore.videoActivationPolicy = policy
-
-        let transport : TransportType = TransportType.Udp
-        
-        let authInfo = try Factory.Instance.createAuthInfo(username: "9004", userid: "", passwd: "9004", ha1: "", realm: "", domain: domain)
-        let accountParams = try mCore.createAccountParams()
-        let identity = try Factory.Instance.createAddress(addr: String("sip:9004@" + domain))
-        try! accountParams.setIdentityaddress(newValue: identity)
-        let address = try Factory.Instance.createAddress(addr: String("sip:" + domain))
-        try address.setTransport(newValue: transport)
-        try accountParams.setServeraddress(newValue: address)
-        accountParams.registerEnabled = true
-        
-        mAccount = try mCore.createAccount(params: accountParams)
-        mCore.addAuthInfo(info: authInfo)
-        try mCore.addAccount(account: mAccount!)
-        mCore.defaultAccount = mAccount
-
-        mCoreDelegate = CoreDelegateStub(
-          onCallStateChanged: { (core: Core, call: Call, state: Call.State, message: String) in
-            print("IntercomSDK: onCallStateChanged : \(state) remoteAddress :  \(call.remoteAddress!.asStringUriOnly())")
-              
-              if (state == .IncomingReceived) {
-do {
-    try self.mCore.currentCall?.accept()
-		} catch { NSLog(error.localizedDescription) }
-              }
-            let eventBody:[String: Any] = [
-              "state" : state.rawValue,
-              "remoteAddress": call.remoteContact
-            ];
-   
-        //  self.sendEvent(withName: "SipCallState", body: eventBody)
-
-        }, onAudioDeviceChanged: { (core: Core, device: AudioDevice) in
-          // This callback will be triggered when a successful audio device has been changed
-        }, onAudioDevicesListUpdated: { (core: Core) in
-          // This callback will be triggered when the available devices list has changed,
-          // for example after a bluetooth headset has been connected/disconnected.
-        }, onAccountRegistrationStateChanged: { (core: Core, account: Account, state: RegistrationState, message: String) in
-          print("IntercomSDK: onAccountRegistrationStateChanged \(state) for user id \( String(describing: account.params?.identityAddress?.asString()))\n")
-          let eventBody:[String: Any] = [
-              "state" : state.rawValue
-          ];
-   
-       //   self.sendEvent(withName: "SipAppAccountState", body: eventBody)
-        })
-            
-        mCore.addDelegate(delegate: mCoreDelegate)
-
-        try? mCore.start()
-
-          
-        let result: [String: Any] = ["success": true, "errorCode": 0]
-        print("all good")
-        // resolve(result)
-      }
-      catch {
-        NSLog(error.localizedDescription)
-        let result: [String: Any] = ["success": false, "errorCode": 999]
-        // resolve(result)
-      }
       }
 
     
@@ -521,84 +434,98 @@ do {
     requestAudioPermission()
 
     if (mCore != nil) {
+        print("IntercomSDK: set nativeVideoWindow from TestingView 1");
+        mCore.nativeVideoWindow = TestingView.nativeVideoWindow;
+          mCore.nativePreviewWindow = TestingView.nativePreviewWindow;
+        
       let result: [String: Any] = ["success": false, "errorCode": 0]
       resolve(result)
       return
     }
 
-    do {
-      print("intercomSDK: INIT SIP \(username)")
+      do {
+        print("JJP: INIT SIP")
 
-      LoggingService.Instance.logLevel = LogLevel.Debug
+        LoggingService.Instance.logLevel = LogLevel.Debug
 
-      try? mCore = Factory.Instance.createCore(configPath: "", factoryConfigPath: "", systemContext: nil)
+        try? mCore = Factory.Instance.createCore(configPath: "", factoryConfigPath: "", systemContext: nil)
 
-      mCore.videoDisplayEnabled = true
-      mCore.videoCaptureEnabled = true
-      
-      mCore.activateAudioSession(actived: true)
-
-      let policy = mCore.videoActivationPolicy
-
-      policy?.automaticallyAccept = true
-      policy?.automaticallyInitiate = true
-      
-      mCore.videoActivationPolicy = policy
-
-      let transport : TransportType = TransportType.Udp
-      
-      let authInfo = try Factory.Instance.createAuthInfo(username: username, userid: "", passwd: password, ha1: "", realm: "", domain: domain)
-      let accountParams = try mCore.createAccountParams()
-      let identity = try Factory.Instance.createAddress(addr: String("sip:" + username + "@" + domain))
-      try! accountParams.setIdentityaddress(newValue: identity)
-      let address = try Factory.Instance.createAddress(addr: String("sip:" + domain))
-      try address.setTransport(newValue: transport)
-      try accountParams.setServeraddress(newValue: address)
-      accountParams.registerEnabled = true
-      
-      mAccount = try mCore.createAccount(params: accountParams)
-      mCore.addAuthInfo(info: authInfo)
-      try mCore.addAccount(account: mAccount!)
-      mCore.defaultAccount = mAccount
-
-      mCoreDelegate = CoreDelegateStub( 
-        onCallStateChanged: { (core: Core, call: Call, state: Call.State, message: String) in
-          print("IntercomSDK: onCallStateChanged : \(state) remoteAddress :  \(call.remoteAddress!.asStringUriOnly())")
-            
-          let eventBody:[String: Any] = [
-            "state" : state.rawValue,
-            "remoteAddress": call.remoteContact
-          ];
- 
-        self.sendEvent(withName: "SipCallState", body: eventBody)
-
-      }, onAudioDeviceChanged: { (core: Core, device: AudioDevice) in
-        // This callback will be triggered when a successful audio device has been changed
-      }, onAudioDevicesListUpdated: { (core: Core) in
-        // This callback will be triggered when the available devices list has changed,
-        // for example after a bluetooth headset has been connected/disconnected.
-      }, onAccountRegistrationStateChanged: { (core: Core, account: Account, state: RegistrationState, message: String) in
-        print("IntercomSDK: onAccountRegistrationStateChanged \(state) for user id \( String(describing: account.params?.identityAddress?.asString()))\n")
-        let eventBody:[String: Any] = [
-            "state" : state.rawValue
-        ];
- 
-        self.sendEvent(withName: "SipAppAccountState", body: eventBody)
-      })
-          
-		  mCore.addDelegate(delegate: mCoreDelegate)
-
-      try? mCore.start()
-
+        mCore.videoDisplayEnabled = true
+        mCore.videoCaptureEnabled = true
         
-      let result: [String: Any] = ["success": true, "errorCode": 0]
-      resolve(result)
-    }
-    catch { 
-      NSLog(error.localizedDescription)
-      let result: [String: Any] = ["success": false, "errorCode": 999]
-      resolve(result)
-    }
+        mCore.activateAudioSession(actived: true)
+
+        let policy = mCore.videoActivationPolicy
+
+        policy?.automaticallyAccept = true
+        policy?.automaticallyInitiate = true
+        
+        mCore.videoActivationPolicy = policy
+
+        let transport : TransportType = TransportType.Udp
+        
+        let authInfo = try Factory.Instance.createAuthInfo(username: "9004", userid: "", passwd: "9004", ha1: "", realm: "", domain: domain)
+        let accountParams = try mCore.createAccountParams()
+        let identity = try Factory.Instance.createAddress(addr: String("sip:9004@" + domain))
+        try! accountParams.setIdentityaddress(newValue: identity)
+        let address = try Factory.Instance.createAddress(addr: String("sip:" + domain))
+        try address.setTransport(newValue: transport)
+        try accountParams.setServeraddress(newValue: address)
+        accountParams.registerEnabled = true
+        
+        mAccount = try mCore.createAccount(params: accountParams)
+        mCore.addAuthInfo(info: authInfo)
+        try mCore.addAccount(account: mAccount!)
+        mCore.defaultAccount = mAccount
+
+        mCoreDelegate = CoreDelegateStub(
+          onCallStateChanged: { (core: Core, call: Call, state: Call.State, message: String) in
+            print("IntercomSDK: onCallStateChanged : \(state) remoteAddress :  \(call.remoteAddress!.asStringUriOnly())")
+              
+              if (state == .IncomingReceived) {
+do {
+    try self.mCore.currentCall?.accept()
+        } catch { NSLog(error.localizedDescription) }
+              }
+            let eventBody:[String: Any] = [
+              "state" : state.rawValue,
+              "remoteAddress": call.remoteContact
+            ];
+   
+        //  self.sendEvent(withName: "SipCallState", body: eventBody)
+
+        }, onAudioDeviceChanged: { (core: Core, device: AudioDevice) in
+          // This callback will be triggered when a successful audio device has been changed
+        }, onAudioDevicesListUpdated: { (core: Core) in
+          // This callback will be triggered when the available devices list has changed,
+          // for example after a bluetooth headset has been connected/disconnected.
+        }, onAccountRegistrationStateChanged: { (core: Core, account: Account, state: RegistrationState, message: String) in
+          print("IntercomSDK: onAccountRegistrationStateChanged \(state) for user id \( String(describing: account.params?.identityAddress?.asString()))\n")
+          let eventBody:[String: Any] = [
+              "state" : state.rawValue
+          ];
+   
+       //   self.sendEvent(withName: "SipAppAccountState", body: eventBody)
+        })
+          
+          print("IntercomSDK: set nativeVideoWindow from TestingView 2");
+          mCore.nativeVideoWindow = TestingView.nativeVideoWindow;
+            mCore.nativePreviewWindow = TestingView.nativePreviewWindow;
+          
+        mCore.addDelegate(delegate: mCoreDelegate)
+
+        try? mCore.start()
+
+          
+        let result: [String: Any] = ["success": true, "errorCode": 0]
+        print("all good")
+        // resolve(result)
+      }
+      catch {
+        NSLog(error.localizedDescription)
+        let result: [String: Any] = ["success": false, "errorCode": 999]
+        // resolve(result)
+      }
   }
 
   func requestCameraPermission() {

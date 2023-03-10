@@ -11,21 +11,29 @@ import linphonesw
 import UIKit
 
 struct TestingView: View {
-   @ObservedObject var videoCallContext : JarvisTemplateAppSdk
+   // @ObservedObject var videoCallContext : JarvisTemplateAppSdk
+    
+    static var nativeVideoWindow: UIView? = nil;
+    static var nativePreviewWindow: UIView? = nil;
 
-    var body: some View {
+    @available(iOS 13.0, *)
+    var body:some View {
         VStack {
-            Text(videoCallContext.domain)
-                .padding()
-                .background(Color.yellow)
-                .cornerRadius(10)
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black, lineWidth: 1))
             LinphoneVideoViewHolder() { view in
-                self.videoCallContext.mCore.nativeVideoWindow = view
+                print("IntercomSDK: LinphoneVideoViewHolder returned");
+                TestingView.nativeVideoWindow = view
             }
               .frame(width: 140, height: 200)
               .border(Color.green)
               .padding(.leading)
+            
+            LinphoneVideoViewHolder() { view in
+                TestingView.nativePreviewWindow = view
+            }
+            .frame(width: 140, height: 200)
+            .border(Color.green)
+            .padding(.leading)
         }
     }
+    
 }
