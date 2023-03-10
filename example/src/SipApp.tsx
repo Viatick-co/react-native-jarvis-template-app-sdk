@@ -19,7 +19,7 @@ import {
   toggleMute,
   toggleSpeaker,
   toggleVideo,
-  toggleCamera
+  toggleCamera,
 } from 'react-native-jarvis-template-app-sdk';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -28,7 +28,6 @@ export default function App() {
 
   const [muted, setMuted] = useState(false);
   const [speaker, setSpeaker] = useState(false);
-  
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     flex: 1,
@@ -136,7 +135,7 @@ export default function App() {
   return (
     <SafeAreaView style={backgroundStyle}>
       <View style={{ flex: 1 }}>
-       <SipVideoCallPreview style={{ flex: 1 }} />
+        <SipVideoCallPreview style={{ flex: 1 }} />
         <View
           style={{
             flexDirection: 'row',

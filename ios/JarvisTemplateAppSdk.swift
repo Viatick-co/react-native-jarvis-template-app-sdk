@@ -500,7 +500,6 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     if (mCore != nil) {
         print("IntercomSDK: set nativeVideoWindow from VideoCallView 1");
         mCore.nativeVideoWindow = VideoCallView.nativeVideoWindow;
-          mCore.nativePreviewWindow = VideoCallView.nativePreviewWindow;
         
       let result: [String: Any] = ["success": false, "errorCode": 0]
       resolve(result)
@@ -508,7 +507,6 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
     }
 
       do {
-        print("JJP: INIT SIP")
 
         LoggingService.Instance.logLevel = LogLevel.Debug
 
@@ -546,17 +544,12 @@ class JarvisTemplateAppSdk: RCTEventEmitter, CLLocationManagerDelegate, UNUserNo
           onCallStateChanged: { (core: Core, call: Call, state: Call.State, message: String) in
             print("IntercomSDK: onCallStateChanged : \(state) remoteAddress :  \(call.remoteAddress!.asStringUriOnly())")
               
-              if (state == .IncomingReceived) {
-do {
-    try self.mCore.currentCall?.accept()
-        } catch { NSLog(error.localizedDescription) }
-              }
             let eventBody:[String: Any] = [
               "state" : state.rawValue,
               "remoteAddress": call.remoteContact
             ];
    
-        //  self.sendEvent(withName: "SipCallState", body: eventBody)
+        self.sendEvent(withName: "SipCallState", body: eventBody)
 
         }, onAudioDeviceChanged: { (core: Core, device: AudioDevice) in
           // This callback will be triggered when a successful audio device has been changed
@@ -569,13 +562,12 @@ do {
               "state" : state.rawValue
           ];
    
-       //   self.sendEvent(withName: "SipAppAccountState", body: eventBody)
+          self.sendEvent(withName: "SipAppAccountState", body: eventBody)
         })
           
           print("IntercomSDK: set nativeVideoWindow from VideoCallView 2");
           mCore.nativeVideoWindow = VideoCallView.nativeVideoWindow;
-            mCore.nativePreviewWindow = VideoCallView.nativePreviewWindow;
-          
+ 
         mCore.addDelegate(delegate: mCoreDelegate)
 
         try? mCore.start()
