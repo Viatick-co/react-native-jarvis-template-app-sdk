@@ -1,5 +1,6 @@
 package com.viatick.jarvissdk.utils;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 
@@ -47,7 +48,9 @@ public class BleUtils {
             int measuredPower = (int) scanRecord[(i + 26)];
             double accuracy = calculateAccuracy(rssi, measuredPower);
 
-            return new PeripheralDetail(proximityUUID, major, minor, accuracy);
+            String mac = scanResult.getDevice().getAddress();
+            @SuppressLint("MissingPermission") String name = scanResult.getDevice().getName();
+            return new PeripheralDetail(name, mac, proximityUUID, major, minor, accuracy);
           }
 
 //            Log.d(TAG, "Manufacturer specific data does not start with 0x4C000215");

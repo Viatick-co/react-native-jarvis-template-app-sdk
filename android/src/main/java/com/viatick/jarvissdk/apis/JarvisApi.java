@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.viatick.jarvissdk.apis.response.ApplicationDetail;
 import com.viatick.jarvissdk.apis.response.DeviceFilter;
+import com.viatick.jarvissdk.apis.response.DeviceReferenceDetail;
+import com.viatick.jarvissdk.apis.response.JarvisDevice;
 import com.viatick.jarvissdk.apis.response.LocatingNotification;
 
 import org.json.JSONException;
@@ -64,6 +66,39 @@ public class JarvisApi {
     return null;
   }
 
+  public JarvisDevice findDevice(String sdkKey, String mac) {
+    Request request = new Request.Builder()
+        .header("Access-Token", sdkKey)
+        .url(apiHost + "/device/get-device?mac=" + mac)
+        .build();
+
+    try {
+      Response rp = this.httpClient.newCall(request).execute();
+
+      if (rp.isSuccessful()) {
+        String bodyResponse = rp.body().string();
+        JSONObject responseObject = new JSONObject(bodyResponse);
+
+        long id = responseObject.getLong("id");
+        String name = responseObject.getString("name");
+        String deviceType = responseObject.getString("deviceType");
+
+        JSONObject referenceObject = responseObject.getJSONObject("referenceDetail");
+        String referenceId = referenceObject.getString("id");
+        String referenceName = referenceObject.getString("name");
+        DeviceReferenceDetail referenceDetail = new DeviceReferenceDetail(referenceId, referenceName);
+
+        return new JarvisDevice(id, name, mac, referenceDetail, deviceType);
+      } else {
+        Log.d("JarvisApi", "findDevice code " + rp.code());
+      }
+    } catch (IOException | JSONException e) {
+      Log.e("JarvisApi", e.getLocalizedMessage());
+    }
+
+    return null;
+  }
+
   public LocatingNotification findNotificationByDevice(String sdkKey, String uuid, int major, int minor) {
     JSONObject bodyJson = new JSONObject();
     try {
@@ -76,10 +111,10 @@ public class JarvisApi {
 
     RequestBody body = RequestBody.create(bodyJson.toString(), JSON_MEDIA_TYPE);
     Request request = new Request.Builder()
-        .header("Access-Token", sdkKey)
-        .url(apiHost + "/resource/locating-notification/find-by-device")
-        .post(body)
-        .build();
+      .header("Access-Token", sdkKey)
+      .url(apiHost + "/resource/locating-notification/find-by-device")
+      .post(body)
+      .build();
 
     try {
       Response rp = this.httpClient.newCall(request).execute();
@@ -101,6 +136,35 @@ public class JarvisApi {
     }
 
     return null;
+  }
+
+  public void updatePersonnelGps(String sdkKey, String personnelId, String lat, String lng) {
+    JSONObject bodyJson = new JSONObject();
+    try {
+      bodyJson.put("id", personnelId);
+      bodyJson.put("gpsLat", lat);
+      bodyJson.put("gpsLng", lng);
+    } catch (JSONException e) {
+      Log.e("JarvisApi", e.getLocalizedMessage());
+    }
+
+    RequestBody body = RequestBody.create(bodyJson.toString(), JSON_MEDIA_TYPE);
+    Request request = new Request.Builder()
+      .header("Access-Token", sdkKey)
+      .url(apiHost + "/resource/personnel/edit")
+      .put(body)
+      .build();
+
+    try {
+      Response rp = this.httpClient.newCall(request).execute();
+      if (rp.isSuccessful()) {
+        Log.d("JarvisApi", "update personnel gps successfully - "  + personnelId);
+      } else {
+        Log.d("JarvisApi", "Update personnel gps code" + rp.code());
+      }
+    } catch (IOException e) {
+      Log.e("JarvisApi", e.getLocalizedMessage());
+    }
   }
 
   public static JarvisApi getInstance() {

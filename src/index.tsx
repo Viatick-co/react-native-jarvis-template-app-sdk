@@ -97,6 +97,26 @@ const getServiceStatus = async (): Promise<JarvisServiceStatus> => {
   return await JarvisTemplateAppSdk.getScanServiceStatus();
 };
 
+const startLocatingService = async (
+  sdkKey: string,
+  locatingRange: number,
+  notificationIconName: string,
+  notificationTitle: string,
+  notificationDescription: string
+): Promise<boolean> => {
+  return await JarvisTemplateAppSdk.startLocatingService(
+    sdkKey,
+    locatingRange,
+    notificationIconName,
+    notificationTitle,
+    notificationDescription
+  );
+};
+
+const stopLocatingService = async (): Promise<void> => {
+  return await JarvisTemplateAppSdk.stopLocatingService();
+};
+
 const initSipApplication = async (
   username: string,
   password: string,
@@ -153,6 +173,8 @@ export {
   startScanService,
   stopScanService,
   getServiceStatus,
+  startLocatingService,
+  stopLocatingService,
   initSipApplication,
   stopSipApplication,
   answerIncomingCall,

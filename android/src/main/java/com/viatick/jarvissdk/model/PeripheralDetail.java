@@ -5,19 +5,42 @@ import com.facebook.react.bridge.WritableNativeMap;
 
 public class PeripheralDetail {
 
+  private String name;
   private String uuid;
   private int major;
   private int minor;
   private double distance;
   private long lastSignalTime;
 
+  private String mac;
+
+  private String personnelId;
+
   public PeripheralDetail() {}
 
-  public PeripheralDetail(String uuid, int major, int minor, double distance) {
+  public PeripheralDetail(String name, String mac, String uuid, int major, int minor, double distance) {
+    this.name = name;
+    this.mac = mac;
     this.uuid = uuid;
     this.major = major;
     this.minor = minor;
     this.distance = distance;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getMac() {
+    return mac;
+  }
+
+  public void setMac(String mac) {
+    this.mac = mac;
   }
 
   public String getUuid() {
@@ -74,4 +97,13 @@ public class PeripheralDetail {
 
     return map;
   }
+
+  public String getPersonnelId() {
+    return personnelId;
+  }
+
+  public void setPersonnelId(String personnelId) {
+    this.personnelId = personnelId;
+  }
+
 }

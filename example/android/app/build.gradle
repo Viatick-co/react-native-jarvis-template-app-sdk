@@ -275,6 +275,8 @@ dependencies {
     // Adding this dependency allows the linphone-sdk to automatically handle audio focus
     implementation 'androidx.media:media:1.6.0'
 
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {

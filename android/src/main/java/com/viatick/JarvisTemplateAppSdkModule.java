@@ -24,6 +24,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.viatick.jarvissdk.model.PeripheralDetail;
 import com.viatick.jarvissdk.services.BleScannerService;
 import com.viatick.jarvissdk.services.BleScannerServiceCallback;
+import com.viatick.jarvissdk.services.GpsLocatingService;
+import com.viatick.jarvissdk.services.GpsLocatingServiceCallback;
 import com.viatick.jarvissdk.sip.SipAppInitCallback;
 import com.viatick.jarvissdk.sip.SipAppStateListener;
 import com.viatick.jarvissdk.sip.SipApplication;
@@ -189,6 +191,92 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
     eventBody.putArray("beacons", beaconArray);
 
     promise.resolve(eventBody);
+  }
+
+  @ReactMethod
+  public void startLocatingService(
+    String sdkKey,
+    int range,
+    String notificationIconName,
+    String notificationTitle,
+    String notificationDescription,
+    final Promise promise
+  ) {
+    List<String> permissions = new ArrayList<>();
+    permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+    permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+    }
+
+    permissions.add(Manifest.permission.BLUETOOTH);
+    permissions.add(Manifest.permission.BLUETOOTH_ADMIN);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+    }
+
+    boolean allPermitted = true;
+    Activity activity = this.getCurrentActivity();
+    for (String permission : permissions) {
+      if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+        allPermitted = false;
+        break;
+      }
+    }
+
+    try {
+      if (allPermitted) {
+        Log.d("JarvisSdkModule", "GpsLocatingService Running " + GpsLocatingService.isRunning());
+        if (!GpsLocatingService.isRunning()) {
+          GpsLocatingService.setDelegate(new GpsLocatingServiceCallback() {
+            @Override
+            public void onStarted(boolean success) {
+              promise.resolve(success);
+            }
+
+            @Override
+            public void onDestroyed() {
+            }
+          });
+
+          Context reactContext = this.getReactApplicationContext();
+          String iconPackage = reactContext.getPackageName();
+          final int iconInt = reactContext.getResources().getIdentifier(notificationIconName, "mipmap", iconPackage);
+
+          Intent viaBeaconIntent = new Intent(activity, GpsLocatingService.class);
+          viaBeaconIntent.putExtra("sdkKey", sdkKey);
+          viaBeaconIntent.putExtra("locatingRange", range);
+          viaBeaconIntent.putExtra("notificationIconResourceId", iconInt);
+          viaBeaconIntent.putExtra("notificationTitle", notificationTitle);
+          viaBeaconIntent.putExtra("notificationDescription", notificationDescription);
+
+          if (Build.VERSION.SDK_INT >= 26) {
+            Log.d("JarvisSdkModule", "startForegroundService");
+            activity.startForegroundService(viaBeaconIntent);
+          } else {
+            Log.d("JarvisSdkModule", "startService");
+            activity.startService(viaBeaconIntent);
+          }
+        } else {
+          promise.resolve(true);
+        }
+
+        return;
+      }
+    } catch (Exception ignored) {
+    }
+    promise.resolve(false);
+  }
+
+  @ReactMethod
+  public void stopLocatingService() {
+    Activity activity = this.getCurrentActivity();
+
+    if (activity != null) {
+      Intent viaBeaconIntent = new Intent(activity, GpsLocatingService.class);
+      Log.d("JarvisSdkModule", "stopService");
+      activity.stopService(viaBeaconIntent);
+    }
   }
 
   @ReactMethod
