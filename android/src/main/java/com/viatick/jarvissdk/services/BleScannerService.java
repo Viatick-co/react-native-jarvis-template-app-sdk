@@ -1,6 +1,7 @@
 package com.viatick.jarvissdk.services;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,10 +16,13 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -26,9 +30,21 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.viatick.jarvissdk.apis.JarvisApi;
 import com.viatick.jarvissdk.apis.response.ApplicationDetail;
 import com.viatick.jarvissdk.apis.response.DeviceFilter;
+import com.viatick.jarvissdk.apis.response.DeviceReferenceDetail;
+import com.viatick.jarvissdk.apis.response.JarvisDevice;
 import com.viatick.jarvissdk.apis.response.LocatingNotification;
 import com.viatick.jarvissdk.model.PeripheralDetail;
 import com.viatick.jarvissdk.utils.BleUtils;
@@ -45,6 +61,8 @@ import java.util.concurrent.TimeUnit;
 
 public class BleScannerService extends Service {
 
+  private final static String TAG = "BleScannerService";
+
   private final static String CHANNEL_ID = "Jarvis_Rn_Sdk_Channel";
   private final static String DEVICE_CHANNEL_ID = "Jarvis_Rn_Device_Channel";
 
@@ -60,13 +78,38 @@ public class BleScannerService extends Service {
   private String serviceNotificationTitle = "Jarvis";
   private String serviceNotificationDescription = "SDK Running...";
 
+  private FusedLocationProviderClient fusedLocationClient;
+
   private static long lastBleFoundDateTime = 0;
+  private static double lastCoordinateLat = 0;
+  private static double lastCoordinateLng = 0;
+
+  private boolean servicePushNotificationEnabled = false;
+  private boolean serviceLocatingEnabled = false;
 
   private static final ConcurrentHashMap<String, PeripheralDetail> scannedBleMap = new ConcurrentHashMap<>();
   private final ScheduledThreadPoolExecutor poolExecutor = new ScheduledThreadPoolExecutor(2);
 
   public BleScannerService() {
   }
+
+  private final LocationCallback locationCallback = new LocationCallback() {
+    @Override
+    public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {
+      Log.d(TAG, "Location Available " + locationAvailability.isLocationAvailable());
+    }
+
+    @Override
+    public void onLocationResult(@NonNull LocationResult locationResult) {
+      List<Location> locations = locationResult.getLocations();
+      if (!locations.isEmpty()) {
+        Location location = locations.get(0);
+        Log.d(TAG, "Location  " + location.getLatitude() + " - " + location.getLongitude());
+        lastCoordinateLat = location.getLatitude();
+        lastCoordinateLng = location.getLongitude();
+      }
+    }
+  };
 
   @Nullable
   @Override
@@ -89,6 +132,8 @@ public class BleScannerService extends Service {
     this.notificationIconResourceId = intent.getIntExtra("notificationIconResourceId", 1);
     this.serviceNotificationTitle = intent.getStringExtra("notificationTitle");
     this.serviceNotificationDescription = intent.getStringExtra("notificationDescription");
+    this.servicePushNotificationEnabled = intent.getBooleanExtra("servicePushNotificationEnabled", true);
+    this.serviceLocatingEnabled = intent.getBooleanExtra("serviceLocatingEnabled", false);
 
     this.createNotificationChannel();
 
@@ -122,6 +167,10 @@ public class BleScannerService extends Service {
 
   private void startScan() {
     Log.d("BleScannerService", "startScan called");
+    if (this.serviceLocatingEnabled) {
+      this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+      startLocationUpdates();
+    }
 
     ScanSettings scanSettings = new ScanSettings.Builder()
         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -184,7 +233,11 @@ public class BleScannerService extends Service {
         BluetoothLeScanner bluetoothLeScanner = ((BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter().getBluetoothLeScanner();
         bluetoothLeScanner.stopScan(this.scanCallback);
       }
+    }
 
+    if (this.fusedLocationClient != null) {
+      this.fusedLocationClient.removeLocationUpdates(this.locationCallback);
+      this.fusedLocationClient = null;
     }
 
     this.poolExecutor.shutdownNow();
@@ -217,42 +270,111 @@ public class BleScannerService extends Service {
 
   private void onNewBeaconDetected(final PeripheralDetail ble) {
     this.poolExecutor.execute(() -> {
+      long now = new Date().getTime();
+
       String uuid = ble.getUuid().replaceAll("-", "");
       int major = ble.getMajor();
       int minor = ble.getMinor();
       Log.d("onNewBeaconDetected", uuid + "-" + major + "-" + minor);
 
       JarvisApi jarvisApi = JarvisApi.getInstance();
-      LocatingNotification notification = jarvisApi.findNotificationByDevice(
+
+      if (this.servicePushNotificationEnabled) {
+        LocatingNotification notification = jarvisApi.findNotificationByDevice(
           this.sdkKey,
           uuid,
           major,
           minor
-      );
+        );
 
-      if (notification != null) {
-        long now = new Date().getTime();
-        WritableMap eventBody = Arguments.createMap();
+        if (notification != null) {
+          String title = notification.getTitle();
+          String desc = notification.getDescription();
+          pushFoundNotification(minor, title, desc);
+          Log.d("BleScannerService", title + "-" + desc);
 
-        eventBody.putString("uuid", uuid);
-        eventBody.putInt("major", major);
-        eventBody.putInt("minor", minor);
-        eventBody.putString("title", notification.getTitle());
-        eventBody.putString("description", notification.getDescription());
-        eventBody.putDouble("time", now);
-
-        pushFoundNotification(minor, notification.getTitle(), notification.getDescription());
-        Log.d("BleScannerService", notification.getTitle() + "-" + notification.getDescription());
-
-        try {
-          serviceDelegate.onProximityPush(eventBody);
-        } catch (Exception e) {
-          Log.e("BleScannerService", "Callback onProximityPush failed", e);
+          try {
+            serviceDelegate.onProximityPush(ble, title, desc, now);
+          } catch (Exception e) {
+            Log.e("BleScannerService", "Callback onProximityPush failed", e);
+          }
+        } else {
+          Log.d("BleScannerService", "onNewBeaconDetected notification not found");
         }
-      } else {
-        Log.d("BleScannerService", "onNewBeaconDetected notification not found");
+      } else if (this.serviceLocatingEnabled) {
+        Log.d(TAG, "Finding device by " + ble.getKey());
+
+        // find linked personnel
+        String bleKey = ble.getKey();
+        JarvisDevice foundJarvisDevice = jarvisApi.findDevice(sdkKey, bleKey);
+        if (foundJarvisDevice != null) {
+          DeviceReferenceDetail referenceDetail = foundJarvisDevice.getReferenceDetail();
+          String type = foundJarvisDevice.getDeviceType();
+
+          Log.d(TAG, "Found device " + type + " - " + referenceDetail.getId());
+          if ("WEARABLE".equalsIgnoreCase(type)) {
+            String id = referenceDetail.getId();
+            if (id != null) {
+              ble.setPersonnelId(id);
+
+              jarvisApi.updatePersonnelGps(sdkKey, id, lastCoordinateLat + "", lastCoordinateLng + "");
+
+              serviceDelegate.onGpsFound(ble, lastCoordinateLat + "", lastCoordinateLat + "", now);
+            }
+          }
+        }
       }
     });
+  }
+
+  @SuppressLint("MissingPermission")
+  private void startLocationUpdates() {
+//    LocationRequest locationRequest = LocationRequest.create();
+//    locationRequest.setInterval(10000);
+//    locationRequest.setFastestInterval(5000);
+//    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+    LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+      .setWaitForAccurateLocation(true)
+      .setMinUpdateIntervalMillis(5000)
+      .setMaxUpdateDelayMillis(10000)
+      .build();
+
+//    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//      // TODO: Consider calling
+//      //    ActivityCompat#requestPermissions
+//      // here to request the missing permissions, and then overriding
+//      //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//      //                                          int[] grantResults)
+//      // to handle the case where the user grants the permission. See the documentation
+//      // for ActivityCompat#requestPermissions for more details.
+//      return;
+//    }
+
+    this.fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
+      @NonNull
+      @Override
+      public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
+        return null;
+      }
+
+      @Override
+      public boolean isCancellationRequested() {
+        return false;
+      }
+    }).addOnSuccessListener(new OnSuccessListener<Location>() {
+      @Override
+      public void onSuccess(Location location) {
+        lastCoordinateLat = location.getLatitude();
+        lastCoordinateLng = location.getLongitude();
+      }
+    });
+
+    this.fusedLocationClient.requestLocationUpdates(
+      locationRequest,
+      this.locationCallback,
+      Looper.getMainLooper()
+    );
   }
 
   private void pushFoundNotification(int id, String title, String description) {

@@ -9,6 +9,7 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.facebook.react.bridge.Arguments;
@@ -24,12 +25,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.viatick.jarvissdk.model.PeripheralDetail;
 import com.viatick.jarvissdk.services.BleScannerService;
 import com.viatick.jarvissdk.services.BleScannerServiceCallback;
-import com.viatick.jarvissdk.services.GpsLocatingService;
-import com.viatick.jarvissdk.services.GpsLocatingServiceCallback;
-import com.viatick.jarvissdk.sip.SipAppInitCallback;
 import com.viatick.jarvissdk.sip.SipAppStateListener;
 import com.viatick.jarvissdk.sip.SipApplication;
-import com.viatick.jarvissdk.sip.data.SipAppInitError;
 
 import org.linphone.core.Call;
 import org.linphone.core.RegistrationState;
@@ -66,6 +63,14 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
   public JarvisTemplateAppSdkModule(ReactApplicationContext reactContext) {
     super(reactContext);
   }
+
+  private void sendEvent(String eventName,
+                         @Nullable WritableMap params) {
+    getReactApplicationContext()
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit(eventName, params);
+  }
+
 
   @Override
   @NonNull
@@ -123,9 +128,32 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
             }
 
             @Override
-            public void onProximityPush(WritableMap eventBody) {
-              getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit("BeaconInformation", eventBody);
+            public void onProximityPush(PeripheralDetail ble, String notificationTitle, String notificationDescription, long dateTime) {
+              WritableMap eventBody = Arguments.createMap();
+
+              eventBody.putString("uuid", ble.getUuid());
+              eventBody.putInt("major", ble.getMajor());
+              eventBody.putInt("minor", ble.getMinor());
+              eventBody.putString("title", notificationTitle);
+              eventBody.putString("description", notificationDescription);
+              eventBody.putDouble("time", dateTime);
+
+              sendEvent("BeaconInformation", eventBody);
+            }
+
+            @Override
+            public void onGpsFound(PeripheralDetail ble, String lat, String lng, long dateTime) {
+              WritableMap eventBody = Arguments.createMap();
+
+              eventBody.putString("uuid", ble.getUuid());
+              eventBody.putInt("major", ble.getMajor());
+              eventBody.putInt("minor", ble.getMinor());
+              eventBody.putDouble("time", dateTime);
+              eventBody.putString("userId", ble.getPersonnelId());
+              eventBody.putString("lat", lat);
+              eventBody.putString("lng", lng);
+
+              sendEvent("GpsInformation", eventBody);
             }
 
             @Override
@@ -143,6 +171,8 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
           viaBeaconIntent.putExtra("notificationIconResourceId", iconInt);
           viaBeaconIntent.putExtra("notificationTitle", notificationTitle);
           viaBeaconIntent.putExtra("notificationDescription", notificationDescription);
+          viaBeaconIntent.putExtra("servicePushNotificationEnabled", true);
+          viaBeaconIntent.putExtra("serviceLocatingEnabled", false);
 
           if (Build.VERSION.SDK_INT >= 26) {
             Log.d("JarvisSdkModule", "startForegroundService");
@@ -226,12 +256,41 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
 
     try {
       if (allPermitted) {
-        Log.d("JarvisSdkModule", "GpsLocatingService Running " + GpsLocatingService.isRunning());
-        if (!GpsLocatingService.isRunning()) {
-          GpsLocatingService.setDelegate(new GpsLocatingServiceCallback() {
+        Log.d("JarvisSdkModule", "BleScannerService Running " + BleScannerService.isRunning());
+        if (!BleScannerService.isRunning()) {
+          BleScannerService.setDelegate(new BleScannerServiceCallback() {
             @Override
             public void onStarted(boolean success) {
               promise.resolve(success);
+            }
+
+            @Override
+            public void onProximityPush(PeripheralDetail ble, String notificationTitle, String notificationDescription, long dateTime) {
+              WritableMap eventBody = Arguments.createMap();
+
+              eventBody.putString("uuid", ble.getUuid());
+              eventBody.putInt("major", ble.getMajor());
+              eventBody.putInt("minor", ble.getMinor());
+              eventBody.putString("title", notificationTitle);
+              eventBody.putString("description", notificationDescription);
+              eventBody.putDouble("time", dateTime);
+
+              sendEvent("BeaconInformation", eventBody);
+            }
+
+            @Override
+            public void onGpsFound(PeripheralDetail ble, String lat, String lng, long dateTime) {
+              WritableMap eventBody = Arguments.createMap();
+
+              eventBody.putString("uuid", ble.getUuid());
+              eventBody.putInt("major", ble.getMajor());
+              eventBody.putInt("minor", ble.getMinor());
+              eventBody.putDouble("time", dateTime);
+              eventBody.putString("userId", ble.getPersonnelId());
+              eventBody.putString("lat", lat);
+              eventBody.putString("lng", lng);
+
+              sendEvent("GpsInformation", eventBody);
             }
 
             @Override
@@ -243,12 +302,14 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
           String iconPackage = reactContext.getPackageName();
           final int iconInt = reactContext.getResources().getIdentifier(notificationIconName, "mipmap", iconPackage);
 
-          Intent viaBeaconIntent = new Intent(activity, GpsLocatingService.class);
+          Intent viaBeaconIntent = new Intent(activity, BleScannerService.class);
           viaBeaconIntent.putExtra("sdkKey", sdkKey);
           viaBeaconIntent.putExtra("locatingRange", range);
           viaBeaconIntent.putExtra("notificationIconResourceId", iconInt);
           viaBeaconIntent.putExtra("notificationTitle", notificationTitle);
           viaBeaconIntent.putExtra("notificationDescription", notificationDescription);
+          viaBeaconIntent.putExtra("servicePushNotificationEnabled", false);
+          viaBeaconIntent.putExtra("serviceLocatingEnabled", true);
 
           if (Build.VERSION.SDK_INT >= 26) {
             Log.d("JarvisSdkModule", "startForegroundService");
@@ -273,7 +334,7 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
     Activity activity = this.getCurrentActivity();
 
     if (activity != null) {
-      Intent viaBeaconIntent = new Intent(activity, GpsLocatingService.class);
+      Intent viaBeaconIntent = new Intent(activity, BleScannerService.class);
       Log.d("JarvisSdkModule", "stopService");
       activity.stopService(viaBeaconIntent);
     }

@@ -49,8 +49,7 @@ public class BleUtils {
             double accuracy = calculateAccuracy(rssi, measuredPower);
 
             String mac = scanResult.getDevice().getAddress();
-            @SuppressLint("MissingPermission") String name = scanResult.getDevice().getName();
-            return new PeripheralDetail(name, mac, proximityUUID, major, minor, accuracy);
+            return new PeripheralDetail(mac, proximityUUID, major, minor, accuracy);
           }
 
 //            Log.d(TAG, "Manufacturer specific data does not start with 0x4C000215");

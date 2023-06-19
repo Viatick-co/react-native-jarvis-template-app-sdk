@@ -1,5 +1,4 @@
 import {
-  EmitterSubscription,
   NativeEventEmitter,
   NativeModules,
   Platform,
@@ -41,7 +40,39 @@ let onCallStateListener: (state: number, remoteAddress: string) => void;
 
 const eventEmitter = new NativeEventEmitter(NativeModules.JarvisTemplateAppSdk);
 
-let eventListener: EmitterSubscription;
+let proximityPushCallback: (
+  device: BeaconInfo,
+  notification: NotifcationInfo,
+  time: string
+) => void;
+
+let gpsLocatingCallback: (
+  device: BeaconInfo,
+  userId: string,
+  lat: string,
+  lng: string,
+  time: string
+) => void;
+
+eventEmitter.addListener('BeaconInformation', (event) => {
+  const { uuid, minor, major, time, title, description } = event;
+  const device: BeaconInfo = { uuid, minor, major };
+  const notification: NotifcationInfo = { title, description };
+
+  if (proximityPushCallback) {
+    proximityPushCallback(device, notification, time);
+  }
+});
+eventEmitter.addListener('GpsInformation', (event) => {
+  const { uuid, minor, major, time, userId, lat, lng } = event;
+  console.log('GpsInformation', event);
+
+  const device: BeaconInfo = { uuid, minor, major };
+  if (gpsLocatingCallback) {
+    gpsLocatingCallback(device, userId, lat, lng, time);
+  }
+});
+
 eventEmitter.addListener('SipAppAccountState', (event) => {
   const { state } = event;
 
@@ -67,16 +98,7 @@ const startScanService = async (
     time: string
   ) => void
 ): Promise<boolean> => {
-  eventListener = eventEmitter.addListener('BeaconInformation', (event) => {
-    const { uuid, minor, major, time, title, description } = event;
-    const device: BeaconInfo = { uuid, minor, major };
-    const notification: NotifcationInfo = { title, description };
-
-    if (onProximityPush) {
-      onProximityPush(device, notification, time);
-    }
-  });
-
+  proximityPushCallback = onProximityPush;
   return await JarvisTemplateAppSdk.startScanService(
     sdkKey,
     locatingRange,
@@ -87,9 +109,8 @@ const startScanService = async (
 };
 
 const stopScanService = async (): Promise<void> => {
-  if (eventListener) {
-    eventListener.remove();
-  }
+  // @ts-ignore
+  proximityPushCallback = null;
   return await JarvisTemplateAppSdk.stopScanService();
 };
 

@@ -66,10 +66,10 @@ public class JarvisApi {
     return null;
   }
 
-  public JarvisDevice findDevice(String sdkKey, String mac) {
+  public JarvisDevice findDevice(String sdkKey, String bleKey) {
     Request request = new Request.Builder()
         .header("Access-Token", sdkKey)
-        .url(apiHost + "/device/get-device?mac=" + mac)
+        .url(apiHost + "/device/get-device?bleKey=" + bleKey)
         .build();
 
     try {
@@ -81,6 +81,7 @@ public class JarvisApi {
 
         long id = responseObject.getLong("id");
         String name = responseObject.getString("name");
+        String mac = responseObject.getString("mac");
         String deviceType = responseObject.getString("deviceType");
 
         JSONObject referenceObject = responseObject.getJSONObject("referenceDetail");

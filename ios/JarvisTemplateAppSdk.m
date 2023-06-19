@@ -25,6 +25,17 @@ RCT_EXTERN_METHOD(stopScanService:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(getScanServiceStatus:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(startLocatingService:(NSString*)sdkKey
+                  withLocatingRange:(nonnull NSNumber*)locatingRange
+                  withNotificationIconName:(NSString*)notificationIconName
+                  withNotificationTitle:(NSString*)notificationTitle
+                  withNotificationDescription:(NSString*)notificationDescription
+                 withResolver:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(stopLocatingService:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(initSipApplication:(NSString*)username
                 withPassword:(NSString*)password
                 withResolver:(RCTPromiseResolveBlock)resolve
