@@ -203,14 +203,11 @@ export default function App() {
           </Section>
 
           <View style={{ flexDirection: 'row', padding: 10 }}>
-            <View style={{ flex: 0.33, padding: 10 }}>
+            <View style={{ flex: 0.5, padding: 10 }}>
               <Button title="START" onPress={startJarvisSdk} />
             </View>
-            <View style={{ flex: 0.33, padding: 10 }}>
+            <View style={{ flex: 0.5, padding: 10 }}>
               <Button title="STOP" onPress={stopLocatingService} />
-            </View>
-            <View style={{ flex: 0.33, padding: 10 }}>
-              <Button title="STATUS" />
             </View>
           </View>
         </View>
