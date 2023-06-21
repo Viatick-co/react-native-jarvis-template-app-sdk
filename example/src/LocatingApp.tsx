@@ -11,10 +11,12 @@ import {
   StatusBar,
   ScrollView,
   Button,
+  Modal,
 } from 'react-native';
 import {
   startLocatingService,
   stopLocatingService,
+  BeaconInfo,
 } from 'react-native-jarvis-template-app-sdk';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -23,7 +25,7 @@ import Header from './Header';
 
 // PLEASE DON'T EXPOSE SDK KEY AS BELOW. THIS IS JUST FOR EXAMPLE.
 // MAKE SURE YOU GET SDK_KEY THROUGH YOUR OWN API WHICH REQUIRES AUTHENTICATION
-const SDK_KEY = 'ak_5249a402285bd4818d8906b98b6de';
+const SDK_KEY = 'xxx';
 
 const Section: React.FC<
   React.PropsWithChildren<{
@@ -53,8 +55,18 @@ const Section: React.FC<
   );
 };
 
+type GpsInfoType = {
+  device: BeaconInfo;
+  userId: string;
+  lat: string;
+  lng: string;
+  time: string;
+};
+
 export default function App() {
   const isDarkMode = useColorScheme() === 'dark';
+
+  const [gpsInfo, setGpsInfo] = React.useState<GpsInfoType>();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -113,7 +125,6 @@ export default function App() {
           }
         );
       }
-
       if (
         !(await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION!
@@ -147,19 +158,20 @@ export default function App() {
           }
         );
       }
-
-      const locgranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION!
-      );
-      console.log('ACCESS_FINE_LOCATION', locgranted);
-      const blegranted = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN!
-      );
-      console.log('BLUETOOTH_SCAN', blegranted);
     } else {
       // if running ios
       // make sure your user set always allow location to allow app can run in background
     }
+  };
+
+  const onGpsFound = (
+    device: BeaconInfo,
+    userId: string,
+    lat: string,
+    lng: string,
+    time: string
+  ) => {
+    setGpsInfo({ device, userId, lat, lng, time });
   };
 
   const startJarvisSdk = async (): Promise<void> => {
@@ -168,7 +180,8 @@ export default function App() {
       3,
       'ic_launcher_round',
       'Jarvis Example',
-      'We are running foreground service...'
+      'We are running foreground service...',
+      onGpsFound
     );
     console.log('startJarvisSdk', success);
   };
@@ -215,6 +228,43 @@ export default function App() {
           </View>
         </View>
       </ScrollView>
+      {gpsInfo?.device && (
+        <Modal
+          visible={true}
+          transparent={true}
+          onRequestClose={() => {
+            setGpsInfo(null);
+          }}
+        >
+          <View style={styles.container}>
+            <View style={styles.modalBox}>
+              <Text style={styles.title}>New Device Detected</Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>UUID :</Text>
+                <Text style={styles.value}>
+                  {gpsInfo?.device?.uuid ?? 'N/A'}
+                </Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Major - Minor :</Text>
+                <Text style={styles.value}>{`${
+                  gpsInfo?.device?.major ?? 'N/A'
+                } - ${gpsInfo?.device?.minor ?? 'N/A'}`}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>User Id :</Text>
+                <Text style={styles.value}>{gpsInfo?.userId ?? 'N/A'}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Location :</Text>
+                <Text style={styles.value}>
+                  {gpsInfo?.lat ?? 'N/A'}, {gpsInfo?.lng ?? 'N/A'}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -234,4 +284,41 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   highlight: { fontWeight: '700' },
+  container: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    width: '94%',
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+    borderRadius: 10,
+    padding: 20,
+    paddingTop: 15,
+    alignItems: 'center',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 5,
+  },
+  label: {
+    fontSize: 14,
+    color: 'darkgray',
+    width: '40%',
+  },
+  value: {
+    fontSize: 15,
+    color: '#000',
+    fontWeight: '600',
+    width: '60%',
+  },
+  title: {
+    fontSize: 17,
+    fontWeight: '600',
+    paddingBottom: 13,
+  },
 });

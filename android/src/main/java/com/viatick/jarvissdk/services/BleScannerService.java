@@ -298,8 +298,6 @@ public class BleScannerService extends Service {
           } catch (Exception e) {
             Log.e("BleScannerService", "Callback onProximityPush failed", e);
           }
-        } else {
-          Log.d("BleScannerService", "onNewBeaconDetected notification not found");
         }
       } else if (this.serviceLocatingEnabled) {
         Log.d(TAG, "Finding device by " + ble.getKey());
