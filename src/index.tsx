@@ -63,9 +63,9 @@ eventEmitter.addListener('BeaconInformation', (event) => {
     proximityPushCallback(device, notification, time);
   }
 });
+
 eventEmitter.addListener('GpsInformation', (event) => {
   const { uuid, minor, major, time, userId, lat, lng } = event;
-  console.log('GpsInformation', event);
 
   const device: BeaconInfo = { uuid, minor, major };
   if (gpsLocatingCallback) {
@@ -123,8 +123,16 @@ const startLocatingService = async (
   locatingRange: number,
   notificationIconName: string,
   notificationTitle: string,
-  notificationDescription: string
+  notificationDescription: string,
+  onGpsFound: (
+    device: BeaconInfo,
+    userId: string,
+    lat: string,
+    lng: string,
+    time: string
+  ) => void
 ): Promise<boolean> => {
+  gpsLocatingCallback = onGpsFound;
   return await JarvisTemplateAppSdk.startLocatingService(
     sdkKey,
     locatingRange,
@@ -135,6 +143,8 @@ const startLocatingService = async (
 };
 
 const stopLocatingService = async (): Promise<void> => {
+  // @ts-ignore
+  gpsLocatingCallback = null;
   return await JarvisTemplateAppSdk.stopLocatingService();
 };
 

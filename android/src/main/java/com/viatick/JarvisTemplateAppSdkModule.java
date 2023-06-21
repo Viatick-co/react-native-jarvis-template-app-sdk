@@ -274,8 +274,8 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
               eventBody.putString("title", notificationTitle);
               eventBody.putString("description", notificationDescription);
               eventBody.putDouble("time", dateTime);
-
               sendEvent("BeaconInformation", eventBody);
+
             }
 
             @Override
@@ -289,7 +289,6 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
               eventBody.putString("userId", ble.getPersonnelId());
               eventBody.putString("lat", lat);
               eventBody.putString("lng", lng);
-
               sendEvent("GpsInformation", eventBody);
             }
 
@@ -312,10 +311,8 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
           viaBeaconIntent.putExtra("serviceLocatingEnabled", true);
 
           if (Build.VERSION.SDK_INT >= 26) {
-            Log.d("JarvisSdkModule", "startForegroundService");
             activity.startForegroundService(viaBeaconIntent);
           } else {
-            Log.d("JarvisSdkModule", "startService");
             activity.startService(viaBeaconIntent);
           }
         } else {
@@ -335,7 +332,6 @@ public class JarvisTemplateAppSdkModule extends ReactContextBaseJavaModule {
 
     if (activity != null) {
       Intent viaBeaconIntent = new Intent(activity, BleScannerService.class);
-      Log.d("JarvisSdkModule", "stopService");
       activity.stopService(viaBeaconIntent);
     }
   }
