@@ -54,6 +54,11 @@ Example:
 
     <!-- Register SDK service here -->
     <service
+      android:name="com.viatick.jarvissdk.services.GpsLocatingService"
+      android:exported="false"
+      android:foregroundServiceType="location|dataSync" />
+
+    <service
       android:name="com.reactnativejarvistemplateappsdk.services.BleScannerService"
       android:exported="false"
       android:foregroundServiceType="location|dataSync" />
@@ -61,7 +66,63 @@ Example:
 </manifest>
 ```
 
-#### 2. Request permissions in your app
+#### 2. Update android/app/build.gradle
+under dependencies => insert
+```gradle
+dependencies {
+ ...
+ implementation 'org.linphone:linphone-sdk-android:5.0.71@aar'
+ implementation 'androidx.media:media:1.6.0'
+}
+```
+
+#### 3. Upadte android/build.gradle
+Add this under allprojects/repositories
+
+```gradle
+allprojects {
+  repositories {
+    ...
+
+    maven {
+      url "https://linphone.org/maven_repository"
+    }
+  }
+ }
+```
+
+### iOs
+
+Steps to setup in iOs
+
+#### 1. Insert linphone-sdk.podspec file under project folder
+
+please get the file from example/linphone-sdk.podspec
+
+#### 2. Update Podfile under ios/Podfile
+- Add `pod 'linphone-sdk', :podspec => "../linphone-sdk.podspec"` under target
+- Comment `use_flipper!()` if existing, to disable
+
+Example
+
+```Podfile
+target 'JarvisTemplateAppSdkExample' do
+  ...
+  pod 'react-native-jarvis-template-app-sdk', :path => '../..'
+  pod 'linphone-sdk', :podspec => "../linphone-sdk.podspec"
+
+  #use_flipper!()
+  ...
+end
+```
+
+#### 3. Run pod install again under ios folder
+`pod install`
+
+#### 4. If facing below error when run
+Error `folly/portability/Config.h` file not found, then let remove that line from the file
+
+## Request permissions in your app
 
 This is just example to request permissions at first access. You can build as you wish but just make sure all
 the following permissions is allowed before using SDK
@@ -141,79 +202,18 @@ Second, it requires internet connected, please handle it at your side before cal
 
 Finally, make sure bluetooth service is enabled, please handle it at your side before call `startScanService`
 
-#### 3. Start and Stop SDK
+## Start and Stop SDK
 
 How to run SDK service:
 
-```tsx
-// import sdk functions
-import {
-  startScanService,
-  stopScanService,
-  BeaconInfo,
-  NotificationInfo
-} from 'react-native-jarvis-template-app-sdk';
-
-function App() {
-
-  const startJarvisSdk = async (): Promise<void> => {
-    // please check all permissions allowed before start sdk
-    // for example:
-    const locGranted = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    );
-    if (!locGranted) {
-      return;
-    }
-
-    // Get SDK Key from your Jarvis Account
-    // Note:
-    // Don't expose your sdk key in the code as below. This is just example.
-    // Retrieve it through your own api instead
-    const SDK_KEY = 'xxx';
-
-    // SDK configuration
-    const locatingRange = 3;
-    const notificationIconFileName = 'ic_launcher_round';
-    const foregroundServiceNotificationTitle = 'Jarvis SDK';
-    const foregroundServiceNotificationDescription = 'We are running foreground service...';
-
-    const onProximityPush = (device: BeaconInfo, notification: NotificationInfo, time: string) => {
-      console.log(device, notification, time);
-    };
-
-    // startScanService to start sdk service in foreground
-    const success = await startScanService(
-      SDK_KEY,
-      locatingRange,
-      notificationIconFileName,
-      foregroundServiceNotificationTitle,
-      foregroundServiceNotificationDescription,
-      onProximityPush
-    );
-
-    console.log('startJarvisSdk', success);
-  };
-
-  const stopJarvisSdk = async (): Promise<void> => {
-    // stopScanService to stop foreground service
-    await stopScanService();
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <Button title="START" onPress={startJarvisSdk} />
-      <Button title="STOP" onPress={stopJarvisSdk} />
-    </SafeAreaView>
-  )
-}
-```
+- Ble Push Notification: please check example/src/App.tsx
+- Gps Locating: please check example/src/LocatingApp.tx
 
 ## Methods
 
 ---
 
-### startScanService(sdkKey, locatingRange, notificationIconResourceName, notificationTitle, notificationDescription)
+### startScanService(sdkKey, locatingRange, notificationIconResourceName, notificationTitle, notificationDescription, onProximityPush)
 
 To start sdk service in foreground. It will start only one service task in foreground even when you trigger this method multiple times.
 
@@ -228,7 +228,26 @@ To start sdk service in foreground. It will start only one service task in foreg
 
 ### stopScanService
 
-To stop the running sdk service when no use.
+To stop the running sdk ble push notification service when no use.
+
+Please remember to stop it when no longer use otherwise it causes your battery drain.
+
+### startLocatingService(sdkKey, locatingRange, notificationIconResourceName, notificationTitle, notificationDescription, onFound)
+
+To start sdk service in foreground. It will start only one service task in foreground even when you trigger this method multiple times.
+
+#### Arguments
+
+- `sdkKey` : `string` | Your account SDK Key
+- `locatingRange` : `number` | Range threshold for locating beacon. If you set 3, it means only detect beacon within 3 meters
+- `notificationIconResourceName` : `string` | Name of resource file for Foreground Notification Icon. The icon should be under mipmap type.
+- `notificationTitle` : `string` | Set title for Foreground Notification
+- `notificationDescription` : `string` | Set description for Foreground Notification
+- `onProximityPush` : `(device: BeaconInfo, userId: string, lat: string, lng: string, time: string) => {}` | Callback method for proximity push
+
+### stopLocatingService
+
+To stop the running sdk gps locating service when no use.
 
 Please remember to stop it when no longer use otherwise it causes your battery drain.
 
