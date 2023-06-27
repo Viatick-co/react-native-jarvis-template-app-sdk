@@ -59,7 +59,7 @@ Example:
       android:foregroundServiceType="location|dataSync" />
 
     <service
-      android:name="com.reactnativejarvistemplateappsdk.services.BleScannerService"
+      android:name="com.viatick.jarvissdk.services.BleScannerService"
       android:exported="false"
       android:foregroundServiceType="location|dataSync" />
   </application>
@@ -124,8 +124,11 @@ Error `folly/portability/Config.h` file not found, then let remove that line fro
 
 ## Request permissions in your app
 
-This is just example to request permissions at first access. You can build as you wish but just make sure all
+1. This is just example to request permissions at first access. You can build as you wish but just make sure all
 the following permissions is allowed before using SDK
+
+2. Please make sure Bluetooth and Location is enabled
+
 
 ```tsx
 function App() {
